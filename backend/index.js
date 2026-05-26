@@ -9,6 +9,7 @@ app.use(express.json());
 // Bot ishga tushadi (polling)
 require('./bot');
 
+app.use('/api/groups', require('./routes/groups'));
 app.use('/api/students', require('./routes/students'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
