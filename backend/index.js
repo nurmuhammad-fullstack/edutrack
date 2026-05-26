@@ -11,6 +11,7 @@ require('./bot');
 
 app.use('/api/groups', require('./routes/groups'));
 app.use('/api/students', require('./routes/students'));
+app.use('/api/payments', require('./routes/payments'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
