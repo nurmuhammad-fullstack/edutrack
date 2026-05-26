@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>EduTrack — O'qituvchi paneli</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,146 +16,103 @@
 
 <div class="layout">
 
-  <!-- ============ SIDEBAR ============ -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-logo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- TOP HEADER -->
+  <header class="head">
+    <div class="head-brand">
+      <div class="head-brand-logo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
           <path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/>
         </svg>
       </div>
       EduTrack
     </div>
-
-    <nav class="nav">
-      <a class="nav-item" data-route="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-        Bosh sahifa
-      </a>
-      <a class="nav-item active" data-route="pending">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
-        Yangi arizalar
-        <span class="nav-count" id="nav-count">0</span>
-      </a>
-      <a class="nav-item" data-route="students">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Faol o'quvchilar
-      </a>
-      <a class="nav-item" data-route="attendance">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
-        Davomat
-      </a>
-      <a class="nav-item" data-route="payments">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-        To'lovlar
-      </a>
-      <a class="nav-item" data-route="groups">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0Z"/><circle cx="17" cy="7" r="2"/><circle cx="19" cy="17" r="3"/></svg>
-        Guruhlar
-      </a>
-
-      <div class="nav-divider"></div>
-
-      <a class="nav-item" data-route="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Sozlamalar
-      </a>
-    </nav>
-
-    <div class="sidebar-foot">
-      <div class="sf-avatar">SA</div>
-      <div class="sf-name">Sardor Alimov</div>
-      <div class="sf-role">Bosh o'qituvchi</div>
+    <div class="head-actions">
+      <button class="icon-btn" title="Bildirishnomalar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="bell-dot"></span>
+      </button>
+      <div class="me-av">SA</div>
     </div>
-  </aside>
+  </header>
 
-  <!-- ============ MAIN ============ -->
+  <!-- MAIN -->
   <main class="main">
 
-    <header class="head">
-      <div class="head-title">
-        <h1>Yangi arizalar</h1>
-        <p>Ro'yxatdan o'tgan o'quvchilarni ko'rib chiqing va tasdiqlang.</p>
+    <!-- ===== ARIZALAR SAHIFASI ===== -->
+    <section id="page-pending">
+      <div style="margin-bottom:16px">
+        <div class="page-title">Yangi arizalar</div>
+        <div class="page-sub">Ro'yxatdan o'tgan o'quvchilarni tasdiqlang</div>
       </div>
-      <div class="head-actions">
-        <button class="icon-btn" title="Qidirish">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        </button>
-        <button class="icon-btn" title="Bildirishnomalar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-          <span class="bell-dot"></span>
-        </button>
-        <div class="me">
-          <div class="me-av">SA</div>
-          <span class="me-name">Sardor A.</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+
+      <!-- Stat row -->
+      <div class="stat-row" style="margin-bottom:20px">
+        <div class="stat-card dark">
+          <div class="stat-label">Jami</div>
+          <div class="stat-value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><span class="dot green"></span>Faol</div>
+          <div class="stat-value" id="stat-active">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><span class="dot orange"></span>Pending</div>
+          <div class="stat-value" id="stat-pending">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><span class="dot red"></span>To'lamagan</div>
+          <div class="stat-value" id="stat-unpaid">—</div>
         </div>
       </div>
-    </header>
 
-    <!-- Stat row -->
-    <section class="stat-row">
-      <div class="stat-card dark">
-        <div class="stat-label">Jami o'quvchilar</div>
-        <div class="stat-value" id="stat-total">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><span class="dot green"></span>Faol</div>
-        <div class="stat-value" id="stat-active">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><span class="dot orange"></span>Pending</div>
-        <div class="stat-value" id="stat-pending">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><span class="dot red"></span>To'lamagan</div>
-        <div class="stat-value" id="stat-unpaid">—</div>
+      <!-- Pending cards -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Kutilayotgan <span class="pill" id="pending-pill">0</span></h2>
+          <div class="tabs">
+            <button class="tab active">Hammasi</button>
+            <button class="tab">Bugun</button>
+          </div>
+        </div>
+        <div class="pending-grid" id="pending-grid"></div>
+        <div class="empty" id="pending-empty" hidden>Hozircha yangi arizalar yo'q.</div>
       </div>
     </section>
 
-    <!-- Pending applications -->
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Kutilayotgan arizalar <span class="pill" id="pending-pill">0</span></h2>
-        <div class="tabs">
-          <button class="tab active">Hammasi</button>
-          <button class="tab">Bugun</button>
-          <button class="tab">Bu hafta</button>
-        </div>
+    <!-- ===== O'QUVCHILAR SAHIFASI ===== -->
+    <section id="page-students" hidden>
+      <div style="margin-bottom:16px">
+        <div class="page-title">Faol o'quvchilar</div>
+        <div class="page-sub">Barcha tasdiqlangan o'quvchilar</div>
       </div>
-      <div class="pending-grid" id="pending-grid">
-        <!-- карточки рендерятся из JS -->
-      </div>
-      <div class="empty" id="pending-empty" hidden>
-        Hozircha yangi arizalar yo'q.
-      </div>
-    </section>
 
-    <!-- Active students -->
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Faol o'quvchilar</h2>
-        <div class="tabs">
-          <button class="tab active" data-group="all">Hammasi</button>
-          <!-- group tabs добавятся динамически -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="tabs" id="group-tabs">
+            <button class="tab active" data-group="all">Hammasi</button>
+          </div>
         </div>
-      </div>
-      <div class="table">
-        <div class="table-head">
-          <div>ID</div>
-          <div>O'quvchi</div>
-          <div class="th-phone">Telefon</div>
-          <div>Guruh</div>
-          <div class="th-pay">Oylik to'lov</div>
-          <div style="text-align:right">Status</div>
-        </div>
-        <div id="students-table"></div>
+        <div class="students-list" id="students-list"></div>
         <div class="empty" id="students-empty" hidden>Faol o'quvchilar yo'q.</div>
       </div>
     </section>
 
   </main>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <div class="bn-item active" data-page="pending">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6M19 8v6"/></svg>
+      <span>Arizalar</span>
+      <span class="bn-badge" id="nav-count" style="display:none">0</span>
+    </div>
+    <div class="bn-item" data-page="students">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>O'quvchilar</span>
+    </div>
+  </nav>
+
 </div>
 
 <div class="toast" id="toast">
