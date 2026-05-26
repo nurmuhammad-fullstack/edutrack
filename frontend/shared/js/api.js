@@ -7,8 +7,8 @@
    Сигнатуры функций совпадают с теми, что отдаст реальный API.
    ========================================================= */
 
-const USE_MOCK = true;
-const API_BASE = 'http://localhost:3001/api';
+const USE_MOCK = false;
+const API_BASE = 'https://edutrack-905v.onrender.com/api';
 
 /* ---------------- Mock storage layer ---------------- */
 const STORAGE_KEY = 'edutrack_db';
