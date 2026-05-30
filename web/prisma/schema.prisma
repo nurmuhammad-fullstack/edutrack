@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PRO
+}
+
+enum StudentStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+model Trainer {
+  id            String    @id
+  email         String    @unique
+  phone         String?   @unique
+  telegramId    String?   @unique
+  name          String?
+  plan          Plan      @default(FREE)
+  planExpiresAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  students Student[]
+  groups   Group[]
+}
+
+model Group {
+  id         Int      @id @default(autoincrement())
+  trainerId  String
+  name       String
+  monthlyFee Int
+  createdAt  DateTime @default(now())
+
+  trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  students Student[]
+}
+
+model Student {
+  id         Int           @id @default(autoincrement())
+  trainerId  String
+  groupId    Int?
+  telegramId String?
+  fullName   String
+  phone      String
+  status     StudentStatus @default(PENDING)
+  paymentDay Int?          // day of month (1-31) the student pays; auto-set on first payment
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  trainer    Trainer      @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  group      Group?       @relation(fields: [groupId], references: [id])
+  payments   Payment[]
+  attendance Attendance[]
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  studentId Int
+  month     Int
+  year      Int
+  amount    Int
+  status    PaymentStatus @default(PENDING)
+  paidAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, month, year])
+}
+
+model Attendance {
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  date      DateTime         @db.Date
+  status    AttendanceStatus
+  createdAt DateTime         @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+}
+
+model Feedback {
+  id         Int      @id @default(autoincrement())
+  telegramId String?
+  name       String?
+  username   String?
+  message    String
+  createdAt  DateTime @default(now())
+}
