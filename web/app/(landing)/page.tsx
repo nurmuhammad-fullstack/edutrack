@@ -44,6 +44,23 @@ const PLANS = [
   },
 ];
 
+const COMPARE: { label: string; free: boolean | string; basic: boolean | string; pro: boolean | string }[] = [
+  { label: "O'quvchi soni", free: "10 ta", basic: "60 ta", pro: "♾ Cheksiz" },
+  { label: "Guruhlar", free: "3 ta", basic: "10 ta", pro: "♾ Cheksiz" },
+  { label: "To'lov nazorati", free: true, basic: true, pro: true },
+  { label: "Havola / ariza", free: true, basic: true, pro: true },
+  { label: "Qo'lda qo'shish (web)", free: true, basic: true, pro: true },
+  { label: "Bot orqali qo'shish", free: false, basic: true, pro: true },
+  { label: "Avto to'lov eslatma", free: false, basic: true, pro: true },
+  { label: "Davomat", free: false, basic: false, pro: true },
+  { label: "Hisobotlar", free: false, basic: false, pro: true },
+];
+
+function Cmp({ v }: { v: boolean | string }) {
+  if (typeof v === "string") return <span className="font-medium text-foreground">{v}</span>;
+  return v ? <span className="text-green-600">✓</span> : <span className="text-slate-300">✕</span>;
+}
+
 export default function LandingPage() {
   return (
     <main className="flex flex-col min-h-dvh bg-background">
@@ -200,6 +217,33 @@ export default function LandingPage() {
                 </a>
               </div>
             ))}
+          </div>
+
+          {/* Full comparison */}
+          <div className="mt-10">
+            <h3 className="text-center text-sm font-semibold text-muted-foreground mb-4">To&apos;liq solishtiruv</h3>
+            <div className="overflow-x-auto rounded-2xl border border-border">
+              <table className="w-full min-w-[480px] text-sm border-collapse bg-background">
+                <thead>
+                  <tr>
+                    <th className="text-left font-medium text-muted-foreground py-3 px-4 border-b border-border"></th>
+                    <th className="font-semibold text-foreground py-3 px-3 text-center border-b border-border">Bepul</th>
+                    <th className="font-semibold text-primary py-3 px-3 text-center border-b border-border bg-primary/5">Asosiy</th>
+                    <th className="font-semibold text-foreground py-3 px-3 text-center border-b border-border">Pro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARE.map((row) => (
+                    <tr key={row.label}>
+                      <td className="py-2.5 px-4 text-muted-foreground border-b border-border last:border-0">{row.label}</td>
+                      <td className="py-2.5 px-3 text-center border-b border-border"><Cmp v={row.free} /></td>
+                      <td className="py-2.5 px-3 text-center border-b border-border bg-primary/5"><Cmp v={row.basic} /></td>
+                      <td className="py-2.5 px-3 text-center border-b border-border"><Cmp v={row.pro} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
