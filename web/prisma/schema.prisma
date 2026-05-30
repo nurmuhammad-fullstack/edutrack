@@ -101,6 +101,12 @@ model Attendance {
   @@unique([studentId, date])
 }
 
+model BotUser {
+  chatId    String   @id
+  lang      String   @default("uz")
+  createdAt DateTime @default(now())
+}
+
 model Feedback {
   id         Int      @id @default(autoincrement())
   telegramId String?

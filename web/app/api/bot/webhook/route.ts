@@ -4,6 +4,38 @@ import { prisma } from "@/lib/prisma";
 import { fmtMoney } from "@/lib/utils";
 import { planLimits, studentLimitMessage, PLAN_LABEL } from "@/lib/plan";
 import { applyLink } from "@/lib/apply";
+import { botMsg, botLang, type Locale } from "@/lib/i18n";
+
+// Resolve the saved language for a chat (default uz). null record = not chosen yet.
+async function getChatLang(chatId: number): Promise<Locale> {
+  const u = await prisma.botUser.findUnique({ where: { chatId: String(chatId) }, select: { lang: true } });
+  return botLang(u?.lang);
+}
+
+function langKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: "🇺🇿 O'zbekcha", callback_data: "lang:uz" },
+        { text: "🇷🇺 Русский", callback_data: "lang:ru" },
+      ],
+    ],
+  };
+}
+
+// The trainer onboarding message + buttons, in the given language.
+async function sendOnboarding(chatId: number, lang: Locale) {
+  const m = botMsg[lang];
+  await bot.sendMessage(chatId, m.onboarding, {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: m.btnApply, url: applyLink() }],
+        [{ text: m.btnCabinet, url: `${APP_URL}/login` }],
+        [{ text: m.btnFeedback, callback_data: "feedback" }],
+      ],
+    },
+  });
+}
 
 const bot = new TelegramBot(process.env.BOT_TOKEN!, { polling: false });
 
@@ -13,9 +45,7 @@ const APP_URL =
   (process.env.MINI_APP_URL ?? "").replace(/\/mini-app\/?$/, "") ||
   "https://edutrack-saas.vercel.app";
 
-// Markers so we can recognise replies to our prompts.
-const FEEDBACK_PROMPT =
-  "📝 Fikr yoki muammoingizni shu xabarga *javob* tariqasida yozib yuboring:";
+// Marker so we can recognise the "add student name" reply prompt.
 const ADD_PROMPT =
   "➕ Yangi o'quvchining ism familiyasini shu xabarga javob tariqasida yozing:";
 
@@ -73,9 +103,21 @@ export async function POST(req: Request) {
       const chatId = cq.message?.chat?.id;
       await bot.answerCallbackQuery(cq.id).catch(() => {});
 
+      // Language chosen
+      if (cq.data?.startsWith("lang:") && chatId) {
+        const lang: Locale = cq.data === "lang:ru" ? "ru" : "uz";
+        await prisma.botUser.upsert({
+          where: { chatId: String(chatId) },
+          update: { lang },
+          create: { chatId: String(chatId), lang },
+        });
+        await sendOnboarding(chatId, lang);
+        return NextResponse.json({ ok: true });
+      }
+
       if (cq.data === "feedback" && chatId) {
-        await bot.sendMessage(chatId, FEEDBACK_PROMPT, {
-          parse_mode: "Markdown",
+        const lang = await getChatLang(chatId);
+        await bot.sendMessage(chatId, botMsg[lang].feedbackPrompt, {
           reply_markup: { force_reply: true },
         });
       }
@@ -122,16 +164,16 @@ export async function POST(req: Request) {
     const text: string = message.text ?? "";
 
     // ── 2. Feedback submission ──────────────────────────────────────────────
-    // Either a reply to our feedback prompt, or the /feedback command.
-    const isReplyToPrompt = message.reply_to_message?.text?.startsWith("📝 Fikr");
+    // Either a reply to our feedback prompt (starts with 📝), or /feedback.
+    const isReplyToPrompt = message.reply_to_message?.text?.startsWith("📝");
     const isFeedbackCmd = text.startsWith("/feedback");
 
     if (isReplyToPrompt || isFeedbackCmd) {
+      const lang = await getChatLang(chatId);
       const body = isFeedbackCmd ? text.replace(/^\/feedback/, "").trim() : text.trim();
 
       if (!body) {
-        await bot.sendMessage(chatId, FEEDBACK_PROMPT, {
-          parse_mode: "Markdown",
+        await bot.sendMessage(chatId, botMsg[lang].feedbackPrompt, {
           reply_markup: { force_reply: true },
         });
         return NextResponse.json({ ok: true });
@@ -161,7 +203,7 @@ export async function POST(req: Request) {
           .catch(() => {});
       }
 
-      await bot.sendMessage(chatId, "Rahmat! Fikringiz qabul qilindi 🙏");
+      await bot.sendMessage(chatId, botMsg[lang].feedbackThanks);
       return NextResponse.json({ ok: true });
     }
 
@@ -267,6 +309,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    // ── 3b. /lang — change language ──────────────────────────────────────────
+    if (text.startsWith("/lang")) {
+      await bot.sendMessage(chatId, botMsg.uz.chooseLang, { reply_markup: langKeyboard() });
+      return NextResponse.json({ ok: true });
+    }
+
     // ── 4. /start ────────────────────────────────────────────────────────────
     if (text.startsWith("/start")) {
       const payload = text.split(" ")[1]; // trainer id for student registration
@@ -294,49 +342,38 @@ export async function POST(req: Request) {
 
       if (payload) {
         // Student arrived via a trainer's personal invite link.
+        const lang = await getChatLang(chatId);
+        const m = botMsg[lang];
         const miniAppUrl = `${process.env.MINI_APP_URL}?trainer=${payload}`;
-        await bot.sendMessage(
-          chatId,
-          "EduTrack ga xush kelibsiz! 📚\nRo'yxatdan o'tish uchun tugmani bosing:",
-          {
-            reply_markup: {
-              inline_keyboard: [
-                [{ text: "📝 Ro'yxatdan o'tish", web_app: { url: miniAppUrl } }],
-              ],
-            },
-          }
-        );
+        await bot.sendMessage(chatId, m.studentWelcome, {
+          reply_markup: {
+            inline_keyboard: [[{ text: m.btnRegister, web_app: { url: miniAppUrl } }]],
+          },
+        });
       } else {
-        // No payload → a new visitor. Most likely a trainer exploring the bot.
-        await bot.sendMessage(
-          chatId,
-          "🎁 EduTrack — sport trenerlar uchun #1 yordamchi!\n\n" +
-            "O'quvchilar, to'lovlar va davomat — hammasi bir joyda, Telegram'da. Excel va daftarga qaytmaysiz! 📊\n\n" +
-            "🎓 Trenermisiz?\n" +
-            "✅ Sizga BEPUL akkaunt ochib beramiz!\n" +
-            "Faqat ariza qoldiring — trenerligingizni tasdiqlab, bugunoq ishga tushiramiz. Hech qanday to'lov, hech qanday tashvish.\n\n" +
-            "🔒 (Xavfsizlik uchun faqat haqiqiy trenerlarni qabul qilamiz.)\n\n" +
-            "👨‍🎓 O'quvchimisiz? O'qituvchingiz bergan havola orqali kiring.",
-          {
-            reply_markup: {
-              inline_keyboard: [
-                [{ text: "🎁 Bepul akkaunt ochish", url: applyLink() }],
-                [{ text: "🎓 Kabinetga kirish (akkauntim bor)", url: `${APP_URL}/login` }],
-                [{ text: "💬 Fikr bildirish", callback_data: "feedback" }],
-              ],
-            },
-          }
-        );
+        // No payload → new visitor. Ask language first (once), then onboard.
+        const existing = await prisma.botUser.findUnique({
+          where: { chatId: String(chatId) },
+          select: { lang: true },
+        });
+        if (!existing) {
+          await bot.sendMessage(chatId, botMsg.uz.chooseLang, { reply_markup: langKeyboard() });
+        } else {
+          await sendOnboarding(chatId, botLang(existing.lang));
+        }
       }
       return NextResponse.json({ ok: true });
     }
 
     // ── 5. Anything else: offer the feedback entry point ─────────────────────
-    await bot.sendMessage(chatId, "Quyidagi tugma orqali fikr qoldirishingiz mumkin 👇", {
-      reply_markup: {
-        inline_keyboard: [[{ text: "💬 Fikr bildirish", callback_data: "feedback" }]],
-      },
-    });
+    {
+      const lang = await getChatLang(chatId);
+      await bot.sendMessage(
+        chatId,
+        lang === "ru" ? "Оставьте отзыв кнопкой ниже 👇" : "Quyidagi tugma orqali fikr qoldiring 👇",
+        { reply_markup: { inline_keyboard: [[{ text: botMsg[lang].btnFeedback, callback_data: "feedback" }]] } }
+      );
+    }
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false }, { status: 500 });
