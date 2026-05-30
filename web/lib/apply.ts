@@ -12,7 +12,8 @@ export const APPLY_TEMPLATE = `Assalomu alaykum! EduTrack uchun trener akkaunti 
 4. Necha yillik tajriba:
 5. Hozir nechta o'quvchim bor:
 6. Instagram yoki sahifa havolasi:
-7. Kerakli tarif (Bepul / Asosiy / Pro):`;
+7. Kerakli tarif (Bepul / Asosiy / Pro):
+8. Promo-kod yoki kim tavsiya qildi (bo'lsa):`;
 
 export function applyLink(): string {
   return `https://t.me/${ADMIN_CONTACT}?text=${encodeURIComponent(APPLY_TEMPLATE)}`;
