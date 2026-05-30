@@ -95,7 +95,7 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground font-medium flex items-center justify-center hover:opacity-90 transition-opacity shadow-lg shadow-primary/20"
               >
-                Bepul boshlash
+                🎁 Bepul akkaunt oching
               </a>
               <Link
                 href="/login"
@@ -105,7 +105,7 @@ export default function LandingPage() {
               </Link>
             </div>
             <p className="text-xs text-muted-foreground">
-              🔒 Akkaunt admin tekshiruvidan so&apos;ng ochiladi — faqat haqiqiy trenerlar uchun
+              🎁 Akkaunt <b className="text-foreground">mutlaqo bepul</b> — trenerligingiz tasdiqlangach, biz ochib beramiz
             </p>
           </div>
 

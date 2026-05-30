@@ -310,15 +310,17 @@ export async function POST(req: Request) {
         // No payload → a new visitor. Most likely a trainer exploring the bot.
         await bot.sendMessage(
           chatId,
-          "👋 EduTrack — o'quvchilar, davomat va to'lovlarni oson boshqarish tizimi.\n\n" +
-            "🎓 O'qituvchi bo'lmoqchimisiz?\n" +
-            "Akkaunt o'zi ochilmaydi — avval ariza topshirasiz, biz trenerligingizni tasdiqlaganimizdan so'ng siz uchun akkaunt ochib beramiz. (Xavfsizlik uchun — faqat haqiqiy trenerlar.)\n\n" +
-            "✅ Akkauntingiz allaqachon bormi? Kabinetga kiring.\n\n" +
+          "🎁 EduTrack — sport trenerlar uchun #1 yordamchi!\n\n" +
+            "O'quvchilar, to'lovlar va davomat — hammasi bir joyda, Telegram'da. Excel va daftarga qaytmaysiz! 📊\n\n" +
+            "🎓 Trenermisiz?\n" +
+            "✅ Sizga BEPUL akkaunt ochib beramiz!\n" +
+            "Faqat ariza qoldiring — trenerligingizni tasdiqlab, bugunoq ishga tushiramiz. Hech qanday to'lov, hech qanday tashvish.\n\n" +
+            "🔒 (Xavfsizlik uchun faqat haqiqiy trenerlarni qabul qilamiz.)\n\n" +
             "👨‍🎓 O'quvchimisiz? O'qituvchingiz bergan havola orqali kiring.",
           {
             reply_markup: {
               inline_keyboard: [
-                [{ text: "✍️ Trener sifatida ariza topshirish", url: applyLink() }],
+                [{ text: "🎁 Bepul akkaunt ochish", url: applyLink() }],
                 [{ text: "🎓 Kabinetga kirish (akkauntim bor)", url: `${APP_URL}/login` }],
                 [{ text: "💬 Fikr bildirish", callback_data: "feedback" }],
               ],
