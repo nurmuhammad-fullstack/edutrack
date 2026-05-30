@@ -311,13 +311,15 @@ export async function POST(req: Request) {
         await bot.sendMessage(
           chatId,
           "👋 EduTrack — o'quvchilar, davomat va to'lovlarni oson boshqarish tizimi.\n\n" +
-            "🎓 O'qituvchimisiz? Kabinetga kiring, guruh oching va shaxsiy havolangizni o'quvchilarga ulashing.\n\n" +
+            "🎓 O'qituvchi bo'lmoqchimisiz?\n" +
+            "Akkaunt o'zi ochilmaydi — avval ariza topshirasiz, biz trenerligingizni tasdiqlaganimizdan so'ng siz uchun akkaunt ochib beramiz. (Xavfsizlik uchun — faqat haqiqiy trenerlar.)\n\n" +
+            "✅ Akkauntingiz allaqachon bormi? Kabinetga kiring.\n\n" +
             "👨‍🎓 O'quvchimisiz? O'qituvchingiz bergan havola orqali kiring.",
           {
             reply_markup: {
               inline_keyboard: [
-                [{ text: "✍️ Akkaunt ochish — ariza topshirish", url: applyLink() }],
-                [{ text: "🎓 O'qituvchi kabineti", url: `${APP_URL}/login` }],
+                [{ text: "✍️ Trener sifatida ariza topshirish", url: applyLink() }],
+                [{ text: "🎓 Kabinetga kirish (akkauntim bor)", url: `${APP_URL}/login` }],
                 [{ text: "💬 Fikr bildirish", callback_data: "feedback" }],
               ],
             },
