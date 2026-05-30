@@ -20,46 +20,56 @@ const STEPS = [
   { n: "3", title: "Boshqaring", desc: "Havolangizni o'quvchilarga ulashing, to'lov va davomatni yuriting." },
 ];
 
-const PLANS = [
+// Boolean features shown (with ✓/✕) in every plan card.
+const FEAT_LABELS = [
+  { key: "payment", label: "To'lov nazorati" },
+  { key: "invite", label: "Havola / ariza" },
+  { key: "manual", label: "Qo'lda qo'shish" },
+  { key: "bot", label: "Bot orqali qo'shish" },
+  { key: "reminder", label: "Avto to'lov eslatma" },
+  { key: "attendance", label: "Davomat" },
+  { key: "reports", label: "Hisobotlar" },
+] as const;
+
+type FeatKey = (typeof FEAT_LABELS)[number]["key"];
+
+const PLANS: {
+  name: string;
+  monthly: number;
+  yearly: number;
+  students: string;
+  groups: string;
+  primary: boolean;
+  feats: Record<FeatKey, boolean>;
+}[] = [
   {
     name: "Bepul",
     monthly: PLAN_PRICE.FREE,
     yearly: PLAN_PRICE_YEARLY.FREE,
-    features: ["10 o'quvchi", "3 guruh", "To'lov nazorati", "Telegram havola"],
+    students: "10 o'quvchi",
+    groups: "3 guruh",
     primary: false,
+    feats: { payment: true, invite: true, manual: true, bot: false, reminder: false, attendance: false, reports: false },
   },
   {
     name: "Asosiy",
     monthly: PLAN_PRICE.BASIC,
     yearly: PLAN_PRICE_YEARLY.BASIC,
-    features: ["60 o'quvchi", "10 guruh", "Bot orqali qo'shish", "Avto to'lov eslatma"],
+    students: "60 o'quvchi",
+    groups: "10 guruh",
     primary: true,
+    feats: { payment: true, invite: true, manual: true, bot: true, reminder: true, attendance: false, reports: false },
   },
   {
     name: "Pro",
     monthly: PLAN_PRICE.PRO,
     yearly: PLAN_PRICE_YEARLY.PRO,
-    features: ["Cheksiz o'quvchi", "Cheksiz guruh", "Davomat", "Hisobotlar"],
+    students: "Cheksiz o'quvchi",
+    groups: "Cheksiz guruh",
     primary: false,
+    feats: { payment: true, invite: true, manual: true, bot: true, reminder: true, attendance: true, reports: true },
   },
 ];
-
-const COMPARE: { label: string; free: boolean | string; basic: boolean | string; pro: boolean | string }[] = [
-  { label: "O'quvchi soni", free: "10 ta", basic: "60 ta", pro: "♾ Cheksiz" },
-  { label: "Guruhlar", free: "3 ta", basic: "10 ta", pro: "♾ Cheksiz" },
-  { label: "To'lov nazorati", free: true, basic: true, pro: true },
-  { label: "Havola / ariza", free: true, basic: true, pro: true },
-  { label: "Qo'lda qo'shish (web)", free: true, basic: true, pro: true },
-  { label: "Bot orqali qo'shish", free: false, basic: true, pro: true },
-  { label: "Avto to'lov eslatma", free: false, basic: true, pro: true },
-  { label: "Davomat", free: false, basic: false, pro: true },
-  { label: "Hisobotlar", free: false, basic: false, pro: true },
-];
-
-function Cmp({ v }: { v: boolean | string }) {
-  if (typeof v === "string") return <span className="font-medium text-foreground">{v}</span>;
-  return v ? <span className="text-green-600">✓</span> : <span className="text-slate-300">✕</span>;
-}
 
 export default function LandingPage() {
   return (
@@ -196,12 +206,27 @@ export default function LandingPage() {
                     </div>
                   )}
                 </div>
-                <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2">
-                      <span className="text-green-600 shrink-0">✓</span> {f}
-                    </li>
-                  ))}
+                <ul className="flex flex-col gap-2 text-sm">
+                  <li className="flex items-center gap-2 text-foreground font-medium">
+                    <span className="text-green-600 shrink-0">✓</span> {plan.students}
+                  </li>
+                  <li className="flex items-center gap-2 text-foreground font-medium">
+                    <span className="text-green-600 shrink-0">✓</span> {plan.groups}
+                  </li>
+                  {FEAT_LABELS.map((f) => {
+                    const has = plan.feats[f.key];
+                    return (
+                      <li
+                        key={f.key}
+                        className={`flex items-center gap-2 ${has ? "text-muted-foreground" : "text-slate-400"}`}
+                      >
+                        <span className={`shrink-0 ${has ? "text-green-600" : "text-slate-300"}`}>
+                          {has ? "✓" : "✕"}
+                        </span>
+                        {f.label}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <a
                   href={apply}
@@ -219,32 +244,6 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Full comparison */}
-          <div className="mt-10">
-            <h3 className="text-center text-sm font-semibold text-muted-foreground mb-4">To&apos;liq solishtiruv</h3>
-            <div className="overflow-x-auto rounded-2xl border border-border">
-              <table className="w-full min-w-[480px] text-sm border-collapse bg-background">
-                <thead>
-                  <tr>
-                    <th className="text-left font-medium text-muted-foreground py-3 px-4 border-b border-border"></th>
-                    <th className="font-semibold text-foreground py-3 px-3 text-center border-b border-border">Bepul</th>
-                    <th className="font-semibold text-primary py-3 px-3 text-center border-b border-border bg-primary/5">Asosiy</th>
-                    <th className="font-semibold text-foreground py-3 px-3 text-center border-b border-border">Pro</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARE.map((row) => (
-                    <tr key={row.label}>
-                      <td className="py-2.5 px-4 text-muted-foreground border-b border-border last:border-0">{row.label}</td>
-                      <td className="py-2.5 px-3 text-center border-b border-border"><Cmp v={row.free} /></td>
-                      <td className="py-2.5 px-3 text-center border-b border-border bg-primary/5"><Cmp v={row.basic} /></td>
-                      <td className="py-2.5 px-3 text-center border-b border-border"><Cmp v={row.pro} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </section>
 
