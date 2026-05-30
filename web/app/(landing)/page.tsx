@@ -5,7 +5,8 @@ import { LangSwitcher } from "@/components/lang-switcher";
 import { fmtMoney } from "@/lib/utils";
 import { PLAN_PRICE, PLAN_PRICE_YEARLY } from "@/lib/plan";
 import { applyLink } from "@/lib/apply";
-import { getLocale, landing } from "@/lib/i18n";
+import { landing } from "@/lib/i18n";
+import { getLocale } from "@/lib/get-locale";
 
 const apply = applyLink();
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { initials, avatarColor, fmtMoney } from "@/lib/utils";
+import { useT } from "@/components/i18n-provider";
 import type { Student, Group } from "@/types";
 
 interface Props {
@@ -20,6 +21,7 @@ export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 
   const [editingDay, setEditingDay] = useState(false);
   const [dayInput, setDayInput] = useState(student.paymentDay ? String(student.paymentDay) : "");
   const router = useRouter();
+  const t = useT();
 
   async function toggle() {
     setLoading(true);
@@ -80,7 +82,7 @@ export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 
       : state === "due"
       ? "bg-green-600 text-white border border-green-600 shadow-sm"
       : "bg-muted text-muted-foreground border border-border";
-  const btnLabel = state === "paid" ? "To'langan" : state === "due" ? "To'landi" : "Kutilmoqda";
+  const btnLabel = state === "paid" ? t.paid : state === "due" ? t.paidShort : t.pending;
 
   return (
     <div
@@ -99,7 +101,7 @@ export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 
             {student.group ? (
               <>{student.group.name.split("·")[0].trim()} · {fmtMoney(student.group.monthlyFee)}</>
             ) : (
-              "Guruhsiz"
+              t.noGroup
             )}
           </span>
 
@@ -123,7 +125,7 @@ export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 
                 onClick={saveDay}
                 className="text-primary font-medium px-1.5 py-0.5 rounded-md hover:bg-primary/10"
               >
-                Saqlash
+                {t.save}
               </button>
             </span>
           ) : (
@@ -135,7 +137,7 @@ export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 
                 <rect x="3" y="4" width="18" height="18" rx="2" />
                 <path d="M16 2v4M8 2v4M3 10h18" />
               </svg>
-              {paymentDay ? `${paymentDay}-kun` : "kun belgilash"}
+              {paymentDay ? `${paymentDay}${t.daySuffix}` : t.setDay}
             </button>
           )}
         </div>

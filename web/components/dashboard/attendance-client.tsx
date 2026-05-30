@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { initials, avatarColor } from "@/lib/utils";
+import { useT } from "@/components/i18n-provider";
 import type { Student, Group } from "@/types";
 
 type Status = "PRESENT" | "ABSENT" | "LATE";
@@ -12,20 +13,18 @@ interface Props {
   today: string; // YYYY-MM-DD (Tashkent)
 }
 
-const WEEKDAYS = ["Yakshanba", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba"];
-const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"];
-
 function shiftDate(s: string, delta: number) {
   const d = new Date(`${s}T00:00:00.000Z`);
   d.setUTCDate(d.getUTCDate() + delta);
   return d.toISOString().slice(0, 10);
 }
-function dateLabel(s: string) {
-  const d = new Date(`${s}T00:00:00.000Z`);
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} · ${WEEKDAYS[d.getUTCDay()]}`;
-}
 
 export function AttendanceClient({ groups, students, today }: Props) {
+  const t = useT();
+  const dateLabel = (s: string) => {
+    const d = new Date(`${s}T00:00:00.000Z`);
+    return `${d.getUTCDate()} ${t.monthsShort[d.getUTCMonth()]} · ${t.weekdays[d.getUTCDay()]}`;
+  };
   const [date, setDate] = useState(today);
   const [group, setGroup] = useState<number | null>(null);
   const [att, setAtt] = useState<Record<number, Status>>({});
@@ -74,16 +73,16 @@ export function AttendanceClient({ groups, students, today }: Props) {
   const isToday = date === today;
 
   const STATUS_BTN: { key: Status; label: string; on: string; icon: string }[] = [
-    { key: "PRESENT", label: "Keldi", on: "bg-green-600 text-white border-green-600", icon: "M20 6 9 17l-5-5" },
-    { key: "LATE", label: "Kech", on: "bg-amber-500 text-white border-amber-500", icon: "M12 6v6l4 2M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z" },
-    { key: "ABSENT", label: "Kelmadi", on: "bg-red-500 text-white border-red-500", icon: "M18 6 6 18M6 6l12 12" },
+    { key: "PRESENT", label: t.present, on: "bg-green-600 text-white border-green-600", icon: "M20 6 9 17l-5-5" },
+    { key: "LATE", label: t.late, on: "bg-amber-500 text-white border-amber-500", icon: "M12 6v6l4 2M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z" },
+    { key: "ABSENT", label: t.absent, on: "bg-red-500 text-white border-red-500", icon: "M18 6 6 18M6 6l12 12" },
   ];
 
   return (
     <div className="px-4 py-5 flex flex-col gap-4">
       {/* Header + date nav */}
       <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-foreground">Davomat</h1>
+        <h1 className="font-semibold text-foreground">{t.attendanceTitle}</h1>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setDate((d) => shiftDate(d, -1))}
@@ -104,7 +103,7 @@ export function AttendanceClient({ groups, students, today }: Props) {
         {dateLabel(date)}
         {!isToday && (
           <button onClick={() => setDate(today)} className="text-xs text-primary hover:underline">
-            Bugun
+            {t.today}
           </button>
         )}
       </div>
@@ -113,15 +112,15 @@ export function AttendanceClient({ groups, students, today }: Props) {
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-green-50 rounded-xl p-3 text-center">
           <div className="text-xl font-bold text-green-700">{present}</div>
-          <div className="text-[11px] text-green-700/70">Keldi</div>
+          <div className="text-[11px] text-green-700/70">{t.present}</div>
         </div>
         <div className="bg-amber-50 rounded-xl p-3 text-center">
           <div className="text-xl font-bold text-amber-700">{late}</div>
-          <div className="text-[11px] text-amber-700/70">Kech</div>
+          <div className="text-[11px] text-amber-700/70">{t.late}</div>
         </div>
         <div className="bg-red-50 rounded-xl p-3 text-center">
           <div className="text-xl font-bold text-red-600">{absent}</div>
-          <div className="text-[11px] text-red-600/70">Kelmadi</div>
+          <div className="text-[11px] text-red-600/70">{t.absent}</div>
         </div>
       </div>
 
@@ -154,7 +153,7 @@ export function AttendanceClient({ groups, students, today }: Props) {
       {visible.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center gap-3 bg-card rounded-2xl border border-border">
           <span className="text-3xl">👤</span>
-          <p className="text-muted-foreground text-sm">Faol o&apos;quvchilar yo&apos;q</p>
+          <p className="text-muted-foreground text-sm">{t.noActiveStudents}</p>
         </div>
       ) : (
         <div className={`bg-card rounded-2xl border border-border px-4 ${loading ? "opacity-60" : ""}`}>

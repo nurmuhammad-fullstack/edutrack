@@ -3,16 +3,17 @@ import type { DashboardStats } from "@/types";
 
 interface Props {
   stats: DashboardStats;
+  labels: { total: string; active: string; pending: string; unpaid: string };
 }
 
 const cards = [
-  { key: "total" as const, label: "Jami", dark: true },
-  { key: "active" as const, label: "Faol", dark: false },
-  { key: "pending" as const, label: "Kutmoqda", dark: false },
-  { key: "unpaid" as const, label: "To'lamagan", dark: false },
+  { key: "total" as const, dark: true },
+  { key: "active" as const, dark: false },
+  { key: "pending" as const, dark: false },
+  { key: "unpaid" as const, dark: false },
 ];
 
-export function StatsCards({ stats }: Props) {
+export function StatsCards({ stats, labels }: Props) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {cards.map((card, i) => (
@@ -32,7 +33,7 @@ export function StatsCards({ stats }: Props) {
               card.dark ? "text-background/60" : "text-muted-foreground"
             )}
           >
-            {card.label}
+            {labels[card.key]}
           </span>
           <span className="text-3xl font-bold">{stats[card.key]}</span>
         </div>

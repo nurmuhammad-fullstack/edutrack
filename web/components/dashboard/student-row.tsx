@@ -1,14 +1,16 @@
 import { initials, avatarColor, fmtMoney } from "@/lib/utils";
 import { DeleteStudentButton } from "@/components/dashboard/delete-student-button";
+import type { DashboardDict } from "@/lib/i18n";
 import type { Student, Group, Payment } from "@/types";
 
 interface Props {
   student: Student & { group: Group | null };
   payments: Payment[];
   index?: number;
+  t: Pick<DashboardDict, "paid" | "pending">;
 }
 
-export function StudentRow({ student, payments, index = 0 }: Props) {
+export function StudentRow({ student, payments, index = 0, t }: Props) {
   const now = new Date();
   const paid = payments.some(
     (p) =>
@@ -52,7 +54,7 @@ export function StudentRow({ student, payments, index = 0 }: Props) {
         }`}
       >
         <span className={`size-1.5 rounded-full ${paid ? "bg-green-500" : "bg-orange-500"}`} />
-        {paid ? "To'langan" : "Kutilmoqda"}
+        {paid ? t.paid : t.pending}
       </span>
       <DeleteStudentButton id={student.id} name={student.fullName} />
     </div>

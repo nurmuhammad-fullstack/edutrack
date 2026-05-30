@@ -4,6 +4,9 @@ import { getTrainerId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { Logo } from "@/components/logo";
+import { LangSwitcher } from "@/components/lang-switcher";
+import { I18nProvider } from "@/components/i18n-provider";
+import { getLocale } from "@/lib/get-locale";
 
 // Dashboard pages are per-trainer and auth-gated — never statically prerender.
 export const dynamic = "force-dynamic";
@@ -15,6 +18,8 @@ export default async function DashboardLayout({
 }) {
   const trainerId = await getTrainerId();
   if (!trainerId) redirect("/login");
+
+  const locale = await getLocale();
 
   const [pendingCount, trainer] = await Promise.all([
     prisma.student.count({ where: { trainerId, status: "PENDING" } }),
@@ -30,6 +35,7 @@ export default async function DashboardLayout({
       .toUpperCase() ?? "T";
 
   return (
+    <I18nProvider locale={locale}>
     <div className="flex flex-col min-h-dvh">
       <header className="sticky top-0 z-40 flex items-center justify-between px-4 h-14 bg-card/80 backdrop-blur-xl border-b border-border">
         <span className="inline-flex items-center gap-1.5">
@@ -37,6 +43,7 @@ export default async function DashboardLayout({
           <span className="font-bold text-lg text-primary tracking-tight">EduTrack</span>
         </span>
         <div className="flex items-center gap-3">
+          <LangSwitcher locale={locale} />
           {pendingCount > 0 && (
             <div className="relative">
               <svg className="size-5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -57,5 +64,6 @@ export default async function DashboardLayout({
 
       <BottomNav pendingCount={pendingCount} />
     </div>
+    </I18nProvider>
   );
 }

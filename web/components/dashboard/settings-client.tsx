@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fmtMoney, initials, avatarColor } from "@/lib/utils";
 import { InviteCard } from "@/components/dashboard/invite-card";
-import { planLimits, nextPlanFor, PLAN_LABEL, PLAN_PRICE } from "@/lib/plan";
+import { planLimits, nextPlanFor, PLAN_PRICE } from "@/lib/plan";
+import { useT } from "@/components/i18n-provider";
 import type { Trainer, Group, Plan } from "@/types";
 
-const PLAN_LABELS = { FREE: "Bepul", BASIC: "Asosiy", PRO: "Pro" };
 const PLAN_COLORS = {
   FREE: "bg-muted text-muted-foreground",
   BASIC: "bg-blue-50 text-blue-700",
@@ -37,6 +37,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
+  const t = useT();
   const trainerInitials = initials(trainer?.name ?? trainer?.email ?? "T");
   const trainerName = trainer?.name ?? trainer?.email ?? "Trener";
   const botUsername = process.env.NEXT_PUBLIC_BOT_USERNAME ?? "study_track_uz_bot";
@@ -59,7 +60,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
       router.refresh();
     } else {
       const j = await res.json().catch(() => ({}));
-      alert(j.error ?? "Guruh qo'shilmadi");
+      alert(j.error ?? t.errorOccurred);
     }
     setAddingGroup(false);
   }
@@ -99,7 +100,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
               PLAN_COLORS[trainer?.plan ?? "FREE"]
             }`}
           >
-            {PLAN_LABELS[trainer?.plan ?? "FREE"]} reja
+            {t.planLabels[trainer?.plan ?? "FREE"]} {t.planWord}
           </span>
         </div>
       </div>
@@ -113,37 +114,31 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
           <svg className="size-4 text-primary" viewBox="0 0 24 24" fill="currentColor">
             <path d="M21.95 4.27 18.6 19.94c-.25 1.1-.9 1.38-1.83.86l-5.05-3.72-2.43 2.34c-.27.27-.5.5-1 .5l.36-5.1L17.9 6.1c.4-.36-.1-.56-.62-.2L6.6 13.06l-4.97-1.56c-1.08-.34-1.1-1.08.23-1.6L20.55 2.7c.9-.34 1.68.2 1.4 1.57Z" />
           </svg>
-          <span className="font-medium text-sm text-foreground">Bot orqali o&apos;quvchi qo&apos;shish</span>
+          <span className="font-medium text-sm text-foreground">{t.botAddTitle}</span>
         </div>
 
         {trainer?.telegramId ? (
           <>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              ✅ Telegram ulangan. Botga <span className="font-mono bg-muted px-1 rounded">/add</span> deb yozsangiz,
-              o&apos;quvchi <b>ismi, guruhi va to&apos;lov kunini</b> ketma-ket so&apos;rab to&apos;liq qo&apos;shadi.
-            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{t.botConnected}</p>
             <a
               href={`https://t.me/${botUsername}`}
               target="_blank"
               rel="noopener noreferrer"
               className="self-start text-xs font-medium text-primary hover:underline"
             >
-              Botni ochish →
+              {t.openBot}
             </a>
           </>
         ) : (
           <>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Telegram&apos;ingizni ulang — keyin to&apos;g&apos;ridan-to&apos;g&apos;ri botdan{" "}
-              <span className="font-mono bg-muted px-1 rounded">/add</span> bilan o&apos;quvchi qo&apos;shasiz.
-            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{t.botConnectSub}</p>
             <a
               href={`https://t.me/${botUsername}?start=trainer_${trainer?.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="self-start inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-[#2AABEE] text-white text-sm font-medium hover:bg-[#1d9bd9] transition-colors"
             >
-              Telegram&apos;ni ulash
+              {t.connectTelegram}
             </a>
           </>
         )}
@@ -152,7 +147,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
       {/* Groups section */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <span className="font-medium text-sm text-foreground">Guruhlar</span>
+          <span className="font-medium text-sm text-foreground">{t.groups}</span>
           <button
             onClick={() => setShowAddGroup((v) => !v)}
             className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center transition-colors hover:bg-primary/20"
@@ -168,7 +163,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
             <input
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
-              placeholder="Guruh nomi (masalan: 1-guruh)"
+              placeholder={t.groupNamePh}
               className="w-full text-sm bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-primary/50"
               autoFocus
             />
@@ -177,7 +172,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
                 type="number"
                 value={newGroupFee}
                 onChange={(e) => setNewGroupFee(e.target.value)}
-                placeholder="Oylik to'lov (so'm)"
+                placeholder={t.monthlyFeePh}
                 className="flex-1 text-sm bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-primary/50"
               />
               <button
@@ -185,7 +180,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
                 disabled={addingGroup || !newGroupName.trim() || !newGroupFee}
                 className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-xl disabled:opacity-50 transition-opacity"
               >
-                {addingGroup ? "..." : "Qo'shish"}
+                {addingGroup ? "..." : t.add}
               </button>
             </div>
           </form>
@@ -193,7 +188,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
 
         {groups.length === 0 && !showAddGroup ? (
           <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-            Hozircha guruhlar yo&apos;q
+            {t.noGroupsYet}
           </div>
         ) : (
           <div>
@@ -233,15 +228,15 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
         return (
           <div className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-sm text-foreground">Tarifingiz</span>
+              <span className="font-medium text-sm text-foreground">{t.yourPlan}</span>
               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${PLAN_COLORS[plan]}`}>
-                {PLAN_LABELS[plan]}
+                {t.planLabels[plan]}
               </span>
             </div>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">O&apos;quvchilar</span>
+                <span className="text-muted-foreground">{t.students}</span>
                 <span className={`font-medium ${atStudent ? "text-destructive" : "text-foreground"}`}>
                   {activeStudents} / {limitText(limits.maxStudents)}
                 </span>
@@ -258,7 +253,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Guruhlar</span>
+                <span className="text-muted-foreground">{t.groups}</span>
                 <span className="font-medium text-foreground">
                   {groups.length} / {limitText(limits.maxGroups)}
                 </span>
@@ -273,8 +268,8 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
             {(nearStudent || atStudent) && plan !== "PRO" && (
               <div className="text-xs text-orange-700 bg-orange-50 rounded-xl px-3 py-2">
                 {atStudent
-                  ? `Limit to'ldi! Ko'proq o'quvchi uchun ${PLAN_LABEL[nextPlanFor(plan)]} tarifga o'ting.`
-                  : `Limitga yaqinlashyapsiz. ${PLAN_LABEL[nextPlanFor(plan)]} tarifni ko'rib chiqing.`}
+                  ? `${t.limitFull} ${t.planLabels[nextPlanFor(plan)]} ${t.upgradeToInfo}`
+                  : `${t.limitNear} ${t.planLabels[nextPlanFor(plan)]}`}
               </div>
             )}
           </div>
@@ -285,22 +280,20 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
       {(trainer?.plan ?? "FREE") !== "PRO" ? (
         <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-4 flex flex-col gap-3">
           <div>
-            <div className="font-semibold text-foreground">Tarifni oshiring</div>
-            <div className="text-sm text-muted-foreground">
-              Ko&apos;proq o&apos;quvchi, bot orqali qo&apos;shish, avto to&apos;lov eslatma va davomat
-            </div>
+            <div className="font-semibold text-foreground">{t.planUpgradeTitle}</div>
+            <div className="text-sm text-muted-foreground">{t.planUpgradeSub}</div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-card border border-border rounded-xl p-3">
-              <div className="text-sm font-semibold text-foreground">Asosiy</div>
-              <div className="font-bold text-foreground">{fmtMoney(PLAN_PRICE.BASIC)}<span className="text-xs font-normal text-muted-foreground">/oy</span></div>
-              <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">60 o&apos;quvchi · bot qo&apos;shish · avto eslatma</div>
+              <div className="text-sm font-semibold text-foreground">{t.planLabels.BASIC}</div>
+              <div className="font-bold text-foreground">{fmtMoney(PLAN_PRICE.BASIC)}<span className="text-xs font-normal text-muted-foreground">{t.perMonth}</span></div>
+              <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{t.basicMini}</div>
             </div>
             <div className="bg-card border border-amber-200 rounded-xl p-3 relative">
               <span className="absolute -top-2 right-2 text-[9px] font-bold bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded-full">TOP</span>
-              <div className="text-sm font-semibold text-foreground">Pro</div>
-              <div className="font-bold text-foreground">{fmtMoney(PLAN_PRICE.PRO)}<span className="text-xs font-normal text-muted-foreground">/oy</span></div>
-              <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">Cheksiz · davomat · hisobot</div>
+              <div className="text-sm font-semibold text-foreground">{t.planLabels.PRO}</div>
+              <div className="font-bold text-foreground">{fmtMoney(PLAN_PRICE.PRO)}<span className="text-xs font-normal text-muted-foreground">{t.perMonth}</span></div>
+              <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{t.proMini}</div>
             </div>
           </div>
           <a
@@ -309,15 +302,15 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
             rel="noopener noreferrer"
             className="h-10 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center"
           >
-            Tarifni oshirish — admin bilan bog&apos;lanish
+            {t.upgradeCta}
           </a>
         </div>
       ) : (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
           <span className="text-2xl">⭐</span>
           <div>
-            <div className="font-semibold text-foreground text-sm">Pro faol</div>
-            <div className="text-xs text-muted-foreground">Barcha imkoniyatlar ochiq — cheksiz o&apos;quvchi, davomat, hisobot</div>
+            <div className="font-semibold text-foreground text-sm">{t.proActive}</div>
+            <div className="text-xs text-muted-foreground">{t.proActiveSub}</div>
           </div>
         </div>
       )}
@@ -331,7 +324,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
         <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
         </svg>
-        {loggingOut ? "Chiqilmoqda..." : "Chiqish"}
+        {loggingOut ? t.loggingOut : t.logout}
       </button>
     </div>
   );

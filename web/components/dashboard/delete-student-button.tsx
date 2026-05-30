@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/components/i18n-provider";
 
 export function DeleteStudentButton({ id, name }: { id: number; name: string }) {
   const router = useRouter();
+  const t = useT();
   const [loading, setLoading] = useState(false);
 
   async function remove() {
-    if (!confirm(`"${name}" o'quvchini o'chirasizmi?\n\nUning to'lov tarixi ham o'chadi. Bu amalni qaytarib bo'lmaydi.`)) {
+    if (!confirm(t.deleteStudentConfirm(name))) {
       return;
     }
     setLoading(true);

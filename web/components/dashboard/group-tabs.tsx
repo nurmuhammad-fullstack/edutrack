@@ -8,13 +8,14 @@ import type { Group } from "@/types";
 interface Props {
   groups: Group[];
   activeGroup?: string;
+  allLabel: string;
 }
 
-export function GroupTabs({ groups, activeGroup }: Props) {
+export function GroupTabs({ groups, activeGroup, allLabel }: Props) {
   const searchParams = useSearchParams();
 
   const tabs = [
-    { label: "Hammasi", value: undefined },
+    { label: allLabel, value: undefined },
     ...groups.map((g) => ({
       label: g.name.split("·")[0].trim(),
       value: String(g.id),

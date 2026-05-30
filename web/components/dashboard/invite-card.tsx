@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/components/i18n-provider";
 
 interface Props {
   /** The trainer's personal student-invitation deep link. */
@@ -15,6 +16,7 @@ const SHARE_TEXT =
   "Salom! Men EduTrack orqali davomat va to'lovlarni yuritaman. Ro'yxatdan o'tish uchun shu havoladan kiring:";
 
 export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
 
@@ -58,15 +60,12 @@ export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
         <svg className="size-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6" />
         </svg>
-        <span className="font-medium text-sm text-foreground">O&apos;quvchilarni taklif qilish</span>
+        <span className="font-medium text-sm text-foreground">{t.inviteTitle}</span>
       </div>
 
       <div className="p-4 flex flex-col gap-3">
         {!compact && (
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Bu sizning shaxsiy havolangiz. O&apos;quvchilarga yuboring — ular havola orqali ro&apos;yxatdan
-            o&apos;tadi va arizalari shu yerda paydo bo&apos;ladi.
-          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">{t.inviteSub}</p>
         )}
 
         {/* Link + copy */}
@@ -87,7 +86,7 @@ export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
                 <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
-                Nusxalandi
+                {t.copied}
               </>
             ) : (
               <>
@@ -95,7 +94,7 @@ export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
                   <rect x="9" y="9" width="13" height="13" rx="2" />
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
-                Nusxalash
+                {t.copy}
               </>
             )}
           </button>
@@ -124,7 +123,7 @@ export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
               <circle cx="18" cy="19" r="3" />
               <path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5" />
             </svg>
-            Ulashish
+            {t.share}
           </button>
         </div>
 
@@ -139,7 +138,7 @@ export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
             <rect x="3" y="14" width="7" height="7" rx="1" />
             <path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h.01M21 21h.01M21 17v.01" />
           </svg>
-          {showQr ? "QR-kodni yashirish" : "QR-kodni ko'rsatish"}
+          {showQr ? t.hideQr : t.showQr}
         </button>
 
         {showQr && (
@@ -153,7 +152,7 @@ export function InviteCard({ link, qrDataUrl, compact = false }: Props) {
               download="edutrack-taklif-qr.png"
               className="text-xs font-medium text-primary hover:underline"
             >
-              QR-kodni yuklab olish
+              {t.downloadQr}
             </a>
           </div>
         )}

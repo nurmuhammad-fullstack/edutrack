@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { initials, avatarColor, fmtMoney, relTime } from "@/lib/utils";
+import { useT } from "@/components/i18n-provider";
 import type { Student, Group } from "@/types";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 export function PendingCard({ student, index = 0 }: Props) {
   const router = useRouter();
+  const t = useT();
   const [loading, setLoading] = useState<"confirm" | "reject" | null>(null);
 
   async function action(type: "confirm" | "reject") {
@@ -19,7 +21,7 @@ export function PendingCard({ student, index = 0 }: Props) {
     const res = await fetch(`/api/students/${student.id}/${type}`, { method: "PATCH" });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      alert(j.error ?? "Amal bajarilmadi");
+      alert(j.error ?? t.actionFailed);
     }
     router.refresh();
     setLoading(null);
@@ -53,11 +55,11 @@ export function PendingCard({ student, index = 0 }: Props) {
       {/* Meta */}
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="bg-muted/50 rounded-lg px-3 py-2">
-          <span className="text-muted-foreground block">Ariza</span>
+          <span className="text-muted-foreground block">{t.application}</span>
           <span className="font-medium">{relTime(student.createdAt.toISOString())}</span>
         </div>
         <div className="bg-muted/50 rounded-lg px-3 py-2">
-          <span className="text-muted-foreground block">Oylik</span>
+          <span className="text-muted-foreground block">{t.monthly}</span>
           <span className="font-medium">
             {student.group ? fmtMoney(student.group.monthlyFee) : "—"}
           </span>
@@ -74,7 +76,7 @@ export function PendingCard({ student, index = 0 }: Props) {
           <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 6 6 18M6 6l12 12" />
           </svg>
-          {loading === "reject" ? "..." : "Rad etish"}
+          {loading === "reject" ? "..." : t.reject}
         </button>
         <button
           onClick={() => action("confirm")}
@@ -84,7 +86,7 @@ export function PendingCard({ student, index = 0 }: Props) {
           <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 6 9 17l-5-5" />
           </svg>
-          {loading === "confirm" ? "..." : "Tasdiqlash"}
+          {loading === "confirm" ? "..." : t.confirm}
         </button>
       </div>
     </div>

@@ -2,13 +2,10 @@ import { redirect } from "next/navigation";
 import { getTrainerId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fmtMoney } from "@/lib/utils";
+import { getLocale } from "@/lib/get-locale";
+import { dashboard } from "@/lib/i18n";
 import { PaymentRow } from "@/components/dashboard/payment-row";
 import { MonthNav } from "@/components/dashboard/month-nav";
-
-const MONTH_NAMES = [
-  "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
-  "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr",
-];
 
 export default async function PaymentsPage({
   searchParams,
@@ -17,6 +14,8 @@ export default async function PaymentsPage({
 }) {
   const trainerId = await getTrainerId();
   if (!trainerId) redirect("/login");
+
+  const t = dashboard[await getLocale()];
 
   const now = new Date();
   const { month: mParam, year: yParam } = await searchParams;
@@ -51,18 +50,18 @@ export default async function PaymentsPage({
   return (
     <div className="px-4 py-5 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-foreground">To&apos;lovlar</h1>
+        <h1 className="font-semibold text-foreground">{t.paymentsTitle}</h1>
         <MonthNav month={month} year={year} />
       </div>
 
       <div className="text-center text-sm text-muted-foreground font-medium">
-        {MONTH_NAMES[month - 1]} {year}
+        {t.months[month - 1]} {year}
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-card border border-border rounded-2xl p-4">
-          <div className="text-xs text-muted-foreground mb-1">To&apos;lagan</div>
+          <div className="text-xs text-muted-foreground mb-1">{t.paidCount}</div>
           <div className="text-2xl font-bold text-foreground">
             {paidCount}
             <span className="text-base text-muted-foreground font-normal"> / {totalCount}</span>
@@ -75,7 +74,7 @@ export default async function PaymentsPage({
           </div>
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
-          <div className="text-xs text-muted-foreground mb-1">Yig&apos;ilgan</div>
+          <div className="text-xs text-muted-foreground mb-1">{t.collected}</div>
           <div className="text-lg font-bold text-foreground leading-tight">
             {fmtMoney(totalCollected)}
           </div>
@@ -89,7 +88,7 @@ export default async function PaymentsPage({
       {students.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center gap-3 bg-card rounded-2xl border border-border">
           <span className="text-3xl">👤</span>
-          <p className="text-muted-foreground text-sm">Faol o&apos;quvchilar yo&apos;q</p>
+          <p className="text-muted-foreground text-sm">{t.noActiveStudents}</p>
         </div>
       ) : (
         <div className="bg-card rounded-2xl border border-border px-4">
