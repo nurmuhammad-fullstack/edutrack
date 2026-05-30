@@ -12,6 +12,7 @@ export interface TrainerRow {
   name: string | null;
   phone: string | null;
   plan: Plan;
+  referral: string | null;
   students: number;
   active: number;
   collected: number;
@@ -37,6 +38,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [plan, setPlan] = useState<Plan>("FREE");
+  const [referral, setReferral] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState<{ phone: string; password: string } | null>(null);
@@ -49,6 +51,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editPassword, setEditPassword] = useState("");
+  const [editReferral, setEditReferral] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
 
@@ -67,6 +70,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
     setEditName(t.name ?? "");
     setEditPhone(t.phone ? formatPhone(t.phone) : "");
     setEditPassword("");
+    setEditReferral(t.referral ?? "");
     setEditError("");
   }
 
@@ -77,7 +81,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
     const res = await fetch("/api/admin/trainers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, password, plan }),
+      body: JSON.stringify({ name, phone, password, plan, referral }),
     });
     const json = await res.json().catch(() => ({}));
     if (res.ok) {
@@ -86,6 +90,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
       setPhone("");
       setPassword("");
       setPlan("FREE");
+      setReferral("");
       router.refresh();
     } else {
       setError(json.error ?? "Xatolik yuz berdi");
@@ -107,7 +112,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
   async function saveEdit(id: string) {
     setSavingEdit(true);
     setEditError("");
-    const payload: Record<string, string> = { name: editName, phone: editPhone };
+    const payload: Record<string, string> = { name: editName, phone: editPhone, referral: editReferral };
     if (editPassword) payload.password = editPassword;
     const res = await fetch(`/api/admin/trainers/${id}`, {
       method: "PATCH",
@@ -197,6 +202,12 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
                   <option value="BASIC">BASIC — Asosiy</option>
                   <option value="PRO">PRO</option>
                 </select>
+                <input
+                  value={referral}
+                  onChange={(e) => setReferral(e.target.value)}
+                  placeholder="Promo-kod / kim tavsiya qildi (ixtiyoriy)"
+                  className={`${inputCls} sm:col-span-2`}
+                />
               </div>
               {error && <p className="text-xs text-red-500">{error}</p>}
               <button
@@ -293,6 +304,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
                             <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Ism familiya" className={inputCls} />
                             <input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="+998 90 123 45 67" className={inputCls} />
                             <input value={editPassword} onChange={(e) => setEditPassword(e.target.value)} placeholder="Yangi parol (ixtiyoriy)" className={inputCls} />
+                            <input value={editReferral} onChange={(e) => setEditReferral(e.target.value)} placeholder="Promo-kod / referral" className={`${inputCls} sm:col-span-3`} />
                           </div>
                           {editError && <p className="text-xs text-red-500">{editError}</p>}
                           <div className="flex items-center gap-2">

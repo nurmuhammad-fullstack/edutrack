@@ -135,11 +135,26 @@ export default async function AdminDashboardPage() {
     name: t.name,
     phone: t.phone,
     plan: t.plan,
+    referral: t.referral,
     students: t._count.students,
     active: activeByTrainer.get(t.id) ?? 0,
     collected: collectedByTrainer.get(t.id) ?? 0,
     joined: fmtDate(t.createdAt),
   }));
+
+  // Ambassador / referral rollup: who brought how many trainers (and revenue).
+  const referralMap = new Map<string, { trainers: number; paying: number; collected: number }>();
+  for (const t of trainers) {
+    if (!t.referral) continue;
+    const e = referralMap.get(t.referral) ?? { trainers: 0, paying: 0, collected: 0 };
+    e.trainers += 1;
+    if (t.plan !== "FREE") e.paying += 1;
+    e.collected += collectedByTrainer.get(t.id) ?? 0;
+    referralMap.set(t.referral, e);
+  }
+  const referralRows = [...referralMap.entries()]
+    .map(([code, v]) => ({ code, ...v }))
+    .sort((a, b) => b.trainers - a.trainers);
 
   const kpis = [
     {
@@ -323,6 +338,40 @@ export default async function AdminDashboardPage() {
           )}
         </div>
       </section>
+
+      {/* ── Ambassador / referral report ── */}
+      {referralRows.length > 0 && (
+        <section className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h2 className="font-semibold text-slate-900">📣 Ambassadorlar / Referral</h2>
+            <span className="text-xs text-slate-400">{referralRows.length} manba</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-400 border-b border-slate-100">
+                  <th className="font-medium px-5 py-3">Promo-kod / manba</th>
+                  <th className="font-medium px-3 py-3 text-center">Trenerlar</th>
+                  <th className="font-medium px-3 py-3 text-center">To&apos;lovchi</th>
+                  <th className="font-medium px-5 py-3 text-right">Bu oy daromad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {referralRows.map((r) => (
+                  <tr key={r.code} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/70 transition-colors">
+                    <td className="px-5 py-3 font-medium text-slate-800">{r.code}</td>
+                    <td className="px-3 py-3 text-center text-slate-600">{r.trainers}</td>
+                    <td className="px-3 py-3 text-center">
+                      <span className="text-emerald-600 font-medium">{r.paying}</span>
+                    </td>
+                    <td className="px-5 py-3 text-right text-slate-700 whitespace-nowrap">{fmtMoney(r.collected)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {/* ── Trainers management ── */}
       <section id="trainers" className="scroll-mt-24">

@@ -26,6 +26,7 @@ export async function POST(req: Request) {
   const password = typeof body.password === "string" ? body.password : "";
   const plan: Plan = PLANS.includes(body.plan) ? body.plan : "FREE";
   const normalized = normalizePhone(typeof body.phone === "string" ? body.phone : "");
+  const referral = typeof body.referral === "string" && body.referral.trim() ? body.referral.trim().slice(0, 60) : null;
 
   if (!name || name.length < 2) {
     return NextResponse.json({ error: "Ism kiriting (kamida 2 belgi)" }, { status: 400 });
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
         phone: normalized,
         name,
         plan,
+        referral,
         groups: { create: DEFAULT_GROUPS },
       },
     });

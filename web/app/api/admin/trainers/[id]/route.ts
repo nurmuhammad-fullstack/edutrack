@@ -23,7 +23,13 @@ export async function PATCH(
   const existing = await prisma.trainer.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Topilmadi" }, { status: 404 });
 
-  const data: { name?: string; plan?: (typeof PLANS)[number]; phone?: string; email?: string } = {};
+  const data: {
+    name?: string;
+    plan?: (typeof PLANS)[number];
+    phone?: string;
+    email?: string;
+    referral?: string | null;
+  } = {};
   let newEmail: string | null = null;
 
   if (body.name !== undefined) {
@@ -32,6 +38,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Ism 2-100 belgi bo'lishi kerak" }, { status: 400 });
     }
     data.name = name;
+  }
+
+  if (body.referral !== undefined) {
+    const r = String(body.referral).trim();
+    data.referral = r ? r.slice(0, 60) : null;
   }
 
   if (body.plan !== undefined) {

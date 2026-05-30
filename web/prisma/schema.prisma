@@ -36,6 +36,7 @@ model Trainer {
   phone         String?   @unique
   telegramId    String?   @unique
   name          String?
+  referral      String?   // promo code / ambassador who referred this trainer
   plan          Plan      @default(FREE)
   planExpiresAt DateTime?
   createdAt     DateTime  @default(now())

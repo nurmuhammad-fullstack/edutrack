@@ -8,6 +8,7 @@ export interface Trainer {
   phone: string | null;
   telegramId: string | null;
   name: string | null;
+  referral: string | null;
   plan: Plan;
   planExpiresAt: Date | null;
   createdAt: Date;
