@@ -218,7 +218,7 @@ export default function LandingPage() {
                     return (
                       <li
                         key={f.key}
-                        className={`flex items-center gap-2 ${has ? "text-muted-foreground" : "text-red-400/90"}`}
+                        className={`flex items-center gap-2 ${has ? "text-muted-foreground" : "text-slate-400"}`}
                       >
                         <span className={`shrink-0 font-bold ${has ? "text-green-600" : "text-red-500"}`}>
                           {has ? "✓" : "✕"}
