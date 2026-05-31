@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Group" ADD COLUMN "lessonDays" INTEGER[] DEFAULT ARRAY[]::INTEGER[];

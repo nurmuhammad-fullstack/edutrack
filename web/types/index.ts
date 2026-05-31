@@ -20,6 +20,7 @@ export interface Group {
   trainerId: string;
   name: string;
   monthlyFee: number;
+  lessonDays: number[];
   createdAt: Date;
 }
 

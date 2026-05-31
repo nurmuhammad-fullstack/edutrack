@@ -51,6 +51,7 @@ model Group {
   trainerId  String
   name       String
   monthlyFee Int
+  lessonDays Int[]    @default([]) // weekdays (0=Sun..6=Sat) the group meets; [] = any day
   createdAt  DateTime @default(now())
 
   trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)

@@ -26,7 +26,7 @@ export function AttendanceClient({ groups, students, today }: Props) {
     return `${d.getUTCDate()} ${t.monthsShort[d.getUTCMonth()]} · ${t.weekdays[d.getUTCDay()]}`;
   };
   const [date, setDate] = useState(today);
-  const [group, setGroup] = useState<number | null>(null);
+  const [group, setGroup] = useState<number | null>(groups[0]?.id ?? null);
   const [att, setAtt] = useState<Record<number, Status>>({});
   const [loading, setLoading] = useState(true);
 
@@ -71,6 +71,11 @@ export function AttendanceClient({ groups, students, today }: Props) {
   const absent = visible.filter((s) => att[s.id] === "ABSENT").length;
   const late = visible.filter((s) => att[s.id] === "LATE").length;
   const isToday = date === today;
+
+  // Is the selected date a lesson day for the chosen group?
+  const selectedGroup = groups.find((g) => g.id === group);
+  const dateWeekday = new Date(`${date}T00:00:00.000Z`).getUTCDay();
+  const isLessonDay = !selectedGroup?.lessonDays?.length || selectedGroup.lessonDays.includes(dateWeekday);
 
   const STATUS_BTN: { key: Status; label: string; on: string; icon: string }[] = [
     { key: "PRESENT", label: t.present, on: "bg-green-600 text-white border-green-600", icon: "M20 6 9 17l-5-5" },
@@ -124,17 +129,9 @@ export function AttendanceClient({ groups, students, today }: Props) {
         </div>
       </div>
 
-      {/* Group filter */}
+      {/* Group filter — pick a group first */}
       {groups.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
-          <button
-            onClick={() => setGroup(null)}
-            className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
-              group == null ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border"
-            }`}
-          >
-            Hammasi
-          </button>
           {groups.map((g) => (
             <button
               key={g.id}
@@ -147,6 +144,11 @@ export function AttendanceClient({ groups, students, today }: Props) {
             </button>
           ))}
         </div>
+      )}
+
+      {/* Not a lesson day for this group */}
+      {group != null && !isLessonDay && (
+        <div className="text-xs text-amber-700 bg-amber-50 rounded-xl px-3 py-2">{t.noLessonToday}</div>
       )}
 
       {/* Students */}

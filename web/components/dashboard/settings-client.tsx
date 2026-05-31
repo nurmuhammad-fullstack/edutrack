@@ -33,6 +33,7 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
   const [groups, setGroups] = useState(initialGroups);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupFee, setNewGroupFee] = useState("");
+  const [newGroupDays, setNewGroupDays] = useState<number[]>([]);
   const [addingGroup, setAddingGroup] = useState(false);
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -61,13 +62,14 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
     const res = await fetch("/api/groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newGroupName.trim(), monthlyFee: Number(newGroupFee) }),
+      body: JSON.stringify({ name: newGroupName.trim(), monthlyFee: Number(newGroupFee), lessonDays: newGroupDays }),
     });
     if (res.ok) {
       const group = await res.json();
       setGroups((prev) => [...prev, group]);
       setNewGroupName("");
       setNewGroupFee("");
+      setNewGroupDays([]);
       setShowAddGroup(false);
       router.refresh();
     } else {
@@ -179,6 +181,27 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
               className="w-full text-sm bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-primary/50"
               autoFocus
             />
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] text-muted-foreground">{t.lessonDaysSub}</span>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5, 6, 0].map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() =>
+                      setNewGroupDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]))
+                    }
+                    className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors ${
+                      newGroupDays.includes(d)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background border border-border text-muted-foreground"
+                    }`}
+                  >
+                    {t.weekdaysShort[d]}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="flex gap-2">
               <input
                 type="number"
