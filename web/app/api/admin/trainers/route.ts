@@ -27,6 +27,14 @@ export async function POST(req: Request) {
   const plan: Plan = PLANS.includes(body.plan) ? body.plan : "FREE";
   const normalized = normalizePhone(typeof body.phone === "string" ? body.phone : "");
   const referral = typeof body.referral === "string" && body.referral.trim() ? body.referral.trim().slice(0, 60) : null;
+  // Free promo months: paid plan for N months, then auto-downgrade to FREE.
+  const trialMonths = Number(body.trialMonths);
+  let planExpiresAt: Date | null = null;
+  if (plan !== "FREE" && Number.isInteger(trialMonths) && trialMonths >= 1 && trialMonths <= 12) {
+    const d = new Date();
+    d.setMonth(d.getMonth() + trialMonths);
+    planExpiresAt = d;
+  }
 
   if (!name || name.length < 2) {
     return NextResponse.json({ error: "Ism kiriting (kamida 2 belgi)" }, { status: 400 });
@@ -71,6 +79,7 @@ export async function POST(req: Request) {
         name,
         plan,
         referral,
+        planExpiresAt,
         groups: { create: DEFAULT_GROUPS },
       },
     });

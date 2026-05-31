@@ -13,6 +13,7 @@ export interface TrainerRow {
   phone: string | null;
   plan: Plan;
   referral: string | null;
+  expires: string | null;
   students: number;
   active: number;
   collected: number;
@@ -39,6 +40,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
   const [password, setPassword] = useState("");
   const [plan, setPlan] = useState<Plan>("FREE");
   const [referral, setReferral] = useState("");
+  const [trial, setTrial] = useState("0");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState<{ phone: string; password: string } | null>(null);
@@ -81,7 +83,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
     const res = await fetch("/api/admin/trainers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, password, plan, referral }),
+      body: JSON.stringify({ name, phone, password, plan, referral, trialMonths: Number(trial) }),
     });
     const json = await res.json().catch(() => ({}));
     if (res.ok) {
@@ -91,6 +93,7 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
       setPassword("");
       setPlan("FREE");
       setReferral("");
+      setTrial("0");
       router.refresh();
     } else {
       setError(json.error ?? "Xatolik yuz berdi");
@@ -206,8 +209,20 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
                   value={referral}
                   onChange={(e) => setReferral(e.target.value)}
                   placeholder="Promo-kod / kim tavsiya qildi (ixtiyoriy)"
-                  className={`${inputCls} sm:col-span-2`}
+                  className={inputCls}
                 />
+                <select
+                  value={trial}
+                  onChange={(e) => setTrial(e.target.value)}
+                  disabled={plan === "FREE"}
+                  className={inputCls}
+                  title="Bepul promo muddati (keyin avtomatik FREE)"
+                >
+                  <option value="0">Bepul muddat yo&apos;q</option>
+                  <option value="1">1 oy bepul</option>
+                  <option value="2">2 oy bepul</option>
+                  <option value="3">3 oy bepul</option>
+                </select>
               </div>
               {error && <p className="text-xs text-red-500">{error}</p>}
               <button
@@ -261,6 +276,9 @@ export function TrainersPanel({ trainers }: { trainers: TrainerRow[] }) {
                         <option value="BASIC">BASIC</option>
                         <option value="PRO">PRO</option>
                       </select>
+                      {t.expires && (
+                        <div className="text-[10px] text-amber-600 mt-1">🎁 {t.expires}</div>
+                      )}
                     </td>
                     <td className="px-3 py-3 text-center text-slate-600">{t.students}</td>
                     <td className="px-3 py-3 text-center text-slate-600">{t.active}</td>

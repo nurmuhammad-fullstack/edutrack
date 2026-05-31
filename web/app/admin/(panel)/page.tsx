@@ -136,6 +136,7 @@ export default async function AdminDashboardPage() {
     phone: t.phone,
     plan: t.plan,
     referral: t.referral,
+    expires: t.planExpiresAt ? fmtDate(t.planExpiresAt) : null,
     students: t._count.students,
     active: activeByTrainer.get(t.id) ?? 0,
     collected: collectedByTrainer.get(t.id) ?? 0,

@@ -32,8 +32,14 @@ export async function GET(req: Request) {
     }
   }
 
+  // Auto-expire free promos: paid plans whose promo period passed drop to FREE.
+  const expired = await prisma.trainer.updateMany({
+    where: { plan: { not: "FREE" }, planExpiresAt: { not: null, lt: new Date() } },
+    data: { plan: "FREE", planExpiresAt: null },
+  });
+
   if (!process.env.BOT_TOKEN) {
-    return NextResponse.json({ error: "BOT_TOKEN missing" }, { status: 500 });
+    return NextResponse.json({ ok: true, expired: expired.count, note: "BOT_TOKEN missing" });
   }
 
   const now = Date.now();
@@ -98,6 +104,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     ok: true,
+    expired: expired.count,
     checked: students.length,
     sentToday,
     sentTomorrow,
