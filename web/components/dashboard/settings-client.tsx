@@ -338,13 +338,13 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
             onClick={toggleAttendance}
             role="switch"
             aria-checked={attendanceOn}
-            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
               attendanceOn ? "bg-primary" : "bg-muted"
             }`}
           >
             <span
-              className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform ${
-                attendanceOn ? "translate-x-[22px]" : "translate-x-0.5"
+              className={`inline-block size-4 transform rounded-full bg-white shadow transition-transform ${
+                attendanceOn ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
