@@ -2,11 +2,11 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { PhoneMockup } from "@/components/landing/phone-mockup";
 import { LangSwitcher } from "@/components/lang-switcher";
-import { fmtMoney } from "@/lib/utils";
 import { PLAN_PRICE, PLAN_PRICE_YEARLY } from "@/lib/plan";
 import { applyLink } from "@/lib/apply";
 import { landing } from "@/lib/i18n";
 import { getLocale } from "@/lib/get-locale";
+import { PricingSection } from "@/components/landing/pricing-section";
 
 const apply = applyLink();
 
@@ -136,77 +136,26 @@ export default async function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-card border-y border-border px-6 py-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center text-foreground mb-2">{t.pricingTitle}</h2>
-          <p className="text-center text-muted-foreground text-sm mb-10">{t.pricingSub}</p>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {PLAN_META.map((plan, i) => {
-              const meta = t.plans[i];
-              return (
-                <div
-                  key={meta.name}
-                  className={`rounded-2xl border p-6 flex flex-col gap-4 ${
-                    plan.primary ? "border-primary bg-primary/5 ring-1 ring-primary/20 relative" : "border-border bg-background"
-                  }`}
-                >
-                  {plan.primary && (
-                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-primary text-primary-foreground px-2.5 py-0.5 rounded-full">
-                      {t.popular}
-                    </span>
-                  )}
-                  <div>
-                    <div className="font-semibold text-foreground">{meta.name}</div>
-                    <div className="text-2xl font-bold text-foreground mt-1">
-                      {plan.monthly === 0 ? t.free : fmtMoney(plan.monthly)}
-                      {plan.monthly > 0 && <span className="text-sm font-normal text-muted-foreground">{t.perMonth}</span>}
-                    </div>
-                    {plan.yearly > 0 && (
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {t.perYearPrefix} {fmtMoney(plan.yearly)}{t.perYear}
-                      </div>
-                    )}
-                  </div>
-                  <ul className="flex flex-col gap-2 text-sm">
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <span className="text-green-600 shrink-0">✓</span> {meta.students}
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <span className="text-green-600 shrink-0">✓</span> {meta.groups}
-                    </li>
-                    {FEAT_KEYS.map((key) => {
-                      const has = plan.feats[key];
-                      return (
-                        <li
-                          key={key}
-                          className={`flex items-center gap-2 ${has ? "text-muted-foreground" : "text-slate-400"}`}
-                        >
-                          <span className={`shrink-0 font-bold ${has ? "text-green-600" : "text-red-500"}`}>
-                            {has ? "✓" : "✕"}
-                          </span>
-                          {t.feat[key]}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <a
-                    href={apply}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`mt-auto h-10 rounded-xl font-medium text-sm flex items-center justify-center transition-colors ${
-                      plan.primary
-                        ? "bg-primary text-primary-foreground hover:opacity-90"
-                        : "border border-border bg-card text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {t.choose}
-                  </a>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <PricingSection
+        dict={{
+          pricingTitle: t.pricingTitle,
+          pricingSub: t.pricingSub,
+          popular: t.popular,
+          free: t.free,
+          perMonth: t.perMonth,
+          choose: t.choose,
+          billMonthly: t.billMonthly,
+          billYearly: t.billYearly,
+          billYearlyBadge: t.billYearlyBadge,
+          billedYearly: t.billedYearly,
+          billSave: t.billSave,
+          plans: t.plans,
+          feat: t.feat,
+        }}
+        plans={PLAN_META}
+        featKeys={FEAT_KEYS}
+        applyHref={apply}
+      />
 
       {/* Final CTA */}
       <section className="px-6 py-20 text-center">

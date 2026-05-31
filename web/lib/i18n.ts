@@ -36,6 +36,11 @@ export const landing = {
     perYearPrefix: "yoki",
     perYear: "/yil",
     choose: "Tanlash",
+    billMonthly: "Oylik",
+    billYearly: "Yillik",
+    billYearlyBadge: "2 oy bepul",
+    billedYearly: "yiliga {x} hisoblanadi",
+    billSave: "{n}% tejaysiz",
     fullCompare: "To'liq solishtiruv",
     plans: [
       { name: "Bepul", students: "10 o'quvchi", groups: "3 guruh" },
@@ -87,6 +92,11 @@ export const landing = {
     perYearPrefix: "или",
     perYear: "/год",
     choose: "Выбрать",
+    billMonthly: "Ежемесячно",
+    billYearly: "Ежегодно",
+    billYearlyBadge: "2 месяца бесплатно",
+    billedYearly: "{x} в год",
+    billSave: "экономия {n}%",
     fullCompare: "Полное сравнение",
     plans: [
       { name: "Бесплатный", students: "10 учеников", groups: "3 группы" },
