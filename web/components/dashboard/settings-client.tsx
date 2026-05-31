@@ -38,6 +38,34 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [attendanceOn, setAttendanceOn] = useState(trainer?.attendanceEnabled ?? true);
+  const [editGroupId, setEditGroupId] = useState<number | null>(null);
+  const [egName, setEgName] = useState("");
+  const [egFee, setEgFee] = useState("");
+  const [egDays, setEgDays] = useState<number[]>([]);
+
+  function openEditGroup(g: Group) {
+    setEditGroupId(g.id);
+    setEgName(g.name);
+    setEgFee(String(g.monthlyFee));
+    setEgDays(g.lessonDays ?? []);
+  }
+
+  async function saveEditGroup(id: number) {
+    const res = await fetch(`/api/groups/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: egName.trim(), monthlyFee: egFee, lessonDays: egDays }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setGroups((prev) => prev.map((g) => (g.id === id ? updated : g)));
+      setEditGroupId(null);
+      router.refresh();
+    } else {
+      const j = await res.json().catch(() => ({}));
+      alert(j.error ?? t.errorOccurred);
+    }
+  }
 
   async function toggleAttendance() {
     const next = !attendanceOn;
@@ -228,22 +256,87 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
         ) : (
           <div>
             {groups.map((group) => (
-              <div
-                key={group.id}
-                className="flex items-center justify-between px-4 py-3 border-b border-border last:border-0"
-              >
-                <div>
-                  <div className="text-sm font-medium text-foreground">{group.name}</div>
-                  <div className="text-xs text-muted-foreground">{fmtMoney(group.monthlyFee)} / oy</div>
+              <div key={group.id} className="border-b border-border last:border-0">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <div className="text-sm font-medium text-foreground">{group.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {fmtMoney(group.monthlyFee)} / oy
+                      {group.lessonDays?.length > 0 && (
+                        <span> · {group.lessonDays.slice().sort().map((d) => t.weekdaysShort[d]).join(", ")}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => (editGroupId === group.id ? setEditGroupId(null) : openEditGroup(group))}
+                      className="size-7 rounded-full text-muted-foreground flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                      <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteGroup(group.id)}
+                      className="size-7 rounded-full text-muted-foreground flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    >
+                      <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteGroup(group.id)}
-                  className="size-7 rounded-full text-muted-foreground flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition-colors"
-                >
-                  <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
-                  </svg>
-                </button>
+
+                {editGroupId === group.id && (
+                  <div className="px-4 pb-3 flex flex-col gap-2 bg-muted/20">
+                    <input
+                      value={egName}
+                      onChange={(e) => setEgName(e.target.value)}
+                      placeholder={t.groupNamePh}
+                      className="w-full text-sm bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-primary/50"
+                    />
+                    <input
+                      type="number"
+                      value={egFee}
+                      onChange={(e) => setEgFee(e.target.value)}
+                      placeholder={t.monthlyFeePh}
+                      className="w-full text-sm bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-primary/50"
+                    />
+                    <span className="text-[11px] text-muted-foreground">{t.lessonDaysSub}</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5, 6, 0].map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() =>
+                            setEgDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]))
+                          }
+                          className={`flex-1 h-8 rounded-lg text-[11px] font-medium transition-colors ${
+                            egDays.includes(d)
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background border border-border text-muted-foreground"
+                          }`}
+                        >
+                          {t.weekdaysShort[d]}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => saveEditGroup(group.id)}
+                        className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-xl"
+                      >
+                        {t.save}
+                      </button>
+                      <button
+                        onClick={() => setEditGroupId(null)}
+                        className="px-4 py-2 border border-border text-muted-foreground text-sm rounded-xl"
+                      >
+                        {t.cancel}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

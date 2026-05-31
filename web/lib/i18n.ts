@@ -201,6 +201,7 @@ export const dashboard = {
     setDay: "kun belgilash",
     daySuffix: "-kun",
     save: "Saqlash",
+    cancel: "Bekor",
     paidCount: "To'lagan",
     collected: "Yig'ilgan",
     // attendance
@@ -301,6 +302,7 @@ export const dashboard = {
     setDay: "указать день",
     daySuffix: "-го",
     save: "Сохранить",
+    cancel: "Отмена",
     paidCount: "Оплатили",
     collected: "Собрано",
     attendanceTitle: "Посещаемость",
