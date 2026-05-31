@@ -34,20 +34,20 @@ export function StudentRow({ student, payments, index = 0, t }: Props) {
         <div className="font-medium text-sm text-foreground truncate">
           {student.fullName}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5 min-w-0">
           {student.group && (
             <>
-              <span className="bg-muted rounded-full px-2 py-0.5">
+              <span className="bg-muted rounded-full px-1.5 py-0.5 shrink-0 whitespace-nowrap">
                 {student.group.name.split("·")[0].trim()}
               </span>
-              <span>·</span>
-              <span>{fmtMoney(student.group.monthlyFee)}</span>
+              <span className="shrink-0">·</span>
+              <span className="truncate">{fmtMoney(student.group.monthlyFee)}</span>
             </>
           )}
         </div>
       </div>
       <span
-        className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${
+        className={`flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap ${
           paid
             ? "bg-green-50 text-green-700"
             : "bg-orange-50 text-orange-700"
