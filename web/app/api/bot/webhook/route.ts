@@ -154,6 +154,55 @@ export async function POST(req: Request) {
           }
         }
       }
+
+      // Approve / reject a pending application straight from the bot.
+      if ((cq.data?.startsWith("appr:") || cq.data?.startsWith("rej:")) && chatId) {
+        const approve = cq.data.startsWith("appr:");
+        const sid = Number(cq.data.split(":")[1]);
+        const trainer = await prisma.trainer.findUnique({
+          where: { telegramId: String(chatId) },
+          select: { id: true, plan: true },
+        });
+        const tLang = await getChatLang(chatId);
+        if (trainer) {
+          const student = await prisma.student.findFirst({
+            where: { id: sid, trainerId: trainer.id, status: "PENDING" },
+            select: { id: true, telegramId: true },
+          });
+          if (student) {
+            if (approve) {
+              const activeCount = await prisma.student.count({
+                where: { trainerId: trainer.id, status: "ACTIVE" },
+              });
+              if (activeCount >= planLimits(trainer.plan).maxStudents) {
+                await bot.sendMessage(chatId, botMsg[tLang].limitReached).catch(() => {});
+                return NextResponse.json({ ok: true });
+              }
+              await prisma.student.update({ where: { id: sid }, data: { status: "ACTIVE" } });
+            } else {
+              await prisma.student.update({ where: { id: sid }, data: { status: "REJECTED" } });
+            }
+            // Remove the buttons + confirm to the trainer.
+            if (cq.message?.message_id) {
+              await bot
+                .editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id: chatId, message_id: cq.message.message_id })
+                .catch(() => {});
+            }
+            await bot
+              .sendMessage(chatId, approve ? botMsg[tLang].approvedLabel : botMsg[tLang].rejectedLabel)
+              .catch(() => {});
+            // Notify the student (in their language).
+            if (student.telegramId) {
+              const sLang = await getChatLang(Number(student.telegramId));
+              await bot
+                .sendMessage(student.telegramId, approve ? botMsg[sLang].studentApproved : botMsg[sLang].studentRejected)
+                .catch(() => {});
+            }
+          }
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       return NextResponse.json({ ok: true });
     }
 

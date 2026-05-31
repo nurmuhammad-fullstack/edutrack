@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import TelegramBot from "node-telegram-bot-api";
 import { getTrainerId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { botMsg, botLang } from "@/lib/i18n";
 
 export async function GET(req: Request) {
   const trainerId = await getTrainerId();
@@ -73,20 +75,25 @@ export async function POST(req: Request) {
   }
 
   // Trainer must actually exist (don't trust the client-supplied id).
-  const trainer = await prisma.trainer.findUnique({ where: { id: trainerId }, select: { id: true } });
+  const trainer = await prisma.trainer.findUnique({
+    where: { id: trainerId },
+    select: { id: true, telegramId: true },
+  });
   if (!trainer) {
     return NextResponse.json({ error: "O'qituvchi topilmadi" }, { status: 404 });
   }
 
   // If a group is given, it must belong to this trainer.
+  let groupName: string | null = null;
   if (groupId !== null) {
     const group = await prisma.group.findFirst({
       where: { id: groupId, trainerId },
-      select: { id: true },
+      select: { id: true, name: true },
     });
     if (!group) {
       return NextResponse.json({ error: "Guruh topilmadi" }, { status: 400 });
     }
+    groupName = group.name;
   }
 
   // Idempotent per telegram user.
@@ -107,6 +114,30 @@ export async function POST(req: Request) {
       status: "PENDING",
     },
   });
+
+  // Notify the trainer in the bot (so they can approve/reject without the web app).
+  if (trainer.telegramId && process.env.BOT_TOKEN) {
+    const pref = await prisma.botUser.findUnique({
+      where: { chatId: trainer.telegramId },
+      select: { lang: true },
+    });
+    const m = botMsg[botLang(pref?.lang)];
+    const text =
+      `${m.newApp}\n\n👤 ${fullName}\n📞 ${phone}` + (groupName ? `\n👥 ${groupName.split("·")[0].trim()}` : "");
+    const bot = new TelegramBot(process.env.BOT_TOKEN);
+    await bot
+      .sendMessage(trainer.telegramId, text, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: m.btnApprove, callback_data: `appr:${student.id}` },
+              { text: m.btnReject, callback_data: `rej:${student.id}` },
+            ],
+          ],
+        },
+      })
+      .catch(() => {});
+  }
 
   return NextResponse.json(student, { status: 201 });
 }
