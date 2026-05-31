@@ -140,6 +140,10 @@ export const botMsg = {
     digestPending: "🆕 {n} ta yangi ariza",
     digestDue: "💳 {n} ta to'lov kutilmoqda",
     digestAttendance: "📋 {n} ta guruhda bugun davomat olinmadi",
+    menuAdd: "➕ O'quvchi qo'shish",
+    menuFeedback: "💬 Fikr",
+    menuLang: "🌐 Til / Язык",
+    trainerMenu: "Quyidagi tugmalardan foydalaning 👇",
   },
   ru: {
     chooseLang: "Tilni tanlang / Выберите язык:",
@@ -170,6 +174,10 @@ export const botMsg = {
     digestPending: "🆕 {n} новых заявок",
     digestDue: "💳 {n} ожидают оплаты",
     digestAttendance: "📋 в {n} группах не отмечена посещаемость",
+    menuAdd: "➕ Добавить ученика",
+    menuFeedback: "💬 Отзыв",
+    menuLang: "🌐 Til / Язык",
+    trainerMenu: "Используйте кнопки ниже 👇",
   },
 } as const;
 

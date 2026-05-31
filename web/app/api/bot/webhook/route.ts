@@ -23,6 +23,20 @@ function langKeyboard() {
   };
 }
 
+// Persistent reply keyboard (the trainer's action menu).
+function trainerKeyboard(lang: Locale) {
+  const m = botMsg[lang];
+  return {
+    keyboard: [[{ text: m.menuAdd }], [{ text: m.menuFeedback }, { text: m.menuLang }]],
+    resize_keyboard: true,
+  };
+}
+
+// Does this text match a menu button (in either language)?
+function isMenuButton(text: string, key: "menuAdd" | "menuFeedback" | "menuLang"): boolean {
+  return text === botMsg.uz[key] || text === botMsg.ru[key];
+}
+
 // The trainer onboarding message + buttons, in the given language.
 async function sendOnboarding(chatId: number, lang: Locale) {
   const m = botMsg[lang];
@@ -212,6 +226,17 @@ export async function POST(req: Request) {
     const chatId = message.chat.id;
     const text: string = message.text ?? "";
 
+    // ── Menu buttons (reply keyboard) ────────────────────────────────────────
+    if (isMenuButton(text, "menuLang")) {
+      await bot.sendMessage(chatId, botMsg.uz.chooseLang, { reply_markup: langKeyboard() });
+      return NextResponse.json({ ok: true });
+    }
+    if (isMenuButton(text, "menuFeedback")) {
+      const lang = await getChatLang(chatId);
+      await bot.sendMessage(chatId, botMsg[lang].feedbackPrompt, { reply_markup: { force_reply: true } });
+      return NextResponse.json({ ok: true });
+    }
+
     // ── 2. Feedback submission ──────────────────────────────────────────────
     // Either a reply to our feedback prompt (starts with 📝), or /feedback.
     const isReplyToPrompt = message.reply_to_message?.text?.startsWith("📝");
@@ -259,8 +284,9 @@ export async function POST(req: Request) {
     // ── 2b. Add student — step 1: name (creates draft, then asks group) ──────
     const isNameReply = message.reply_to_message?.text?.startsWith("➕");
     const isAddCmd = text.startsWith("/add");
+    const isAddBtn = isMenuButton(text, "menuAdd");
 
-    if (isNameReply || isAddCmd) {
+    if (isNameReply || isAddCmd || isAddBtn) {
       const trainer = await prisma.trainer.findUnique({
         where: { telegramId: String(chatId) },
         select: { id: true, plan: true },
@@ -296,7 +322,8 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true });
       }
 
-      const name = (isAddCmd ? text.replace(/^\/add/, "") : text).trim();
+      // Button tap → start the flow (no name yet). Command/reply → may carry the name.
+      const name = isNameReply ? text.trim() : isAddCmd ? text.replace(/^\/add/, "").trim() : "";
       if (name.length < 2) {
         await bot.sendMessage(chatId, ADD_PROMPT, { reply_markup: { force_reply: true } });
         return NextResponse.json({ ok: true });
@@ -382,9 +409,11 @@ export async function POST(req: Request) {
           data: { telegramId: null },
         });
         await prisma.trainer.update({ where: { id: tid }, data: { telegramId: String(chatId) } });
+        const lang = await getChatLang(chatId);
         await bot.sendMessage(
           chatId,
-          `✅ Telegram ulandi${trainer.name ? `, ${trainer.name}` : ""}!\n\nEndi shu yerdan o'quvchi qo'shishingiz mumkin — /add buyrug'ini yuboring.`
+          `✅ Telegram ulandi${trainer.name ? `, ${trainer.name}` : ""}!\n\n${botMsg[lang].trainerMenu}`,
+          { reply_markup: trainerKeyboard(lang) }
         );
         return NextResponse.json({ ok: true });
       }
@@ -400,7 +429,17 @@ export async function POST(req: Request) {
           },
         });
       } else {
-        // No payload → new visitor. Ask language first (once), then onboard.
+        // Already-linked trainer → show their action menu (keyboard).
+        const linked = await prisma.trainer.findUnique({
+          where: { telegramId: String(chatId) },
+          select: { id: true },
+        });
+        if (linked) {
+          const lang = await getChatLang(chatId);
+          await bot.sendMessage(chatId, botMsg[lang].trainerMenu, { reply_markup: trainerKeyboard(lang) });
+          return NextResponse.json({ ok: true });
+        }
+        // New visitor. Ask language first (once), then onboard.
         const existing = await prisma.botUser.findUnique({
           where: { chatId: String(chatId) },
           select: { lang: true },
