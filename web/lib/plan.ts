@@ -32,6 +32,10 @@ export function canUseAttendance(plan: Plan | undefined | null): boolean {
   return planLimits(plan).attendance;
 }
 
+export function canUseReports(plan: Plan | undefined | null): boolean {
+  return planLimits(plan).reports;
+}
+
 /** Plan that unlocks a given student count (used for upgrade messaging). */
 export function nextPlanFor(plan: Plan): Plan {
   return plan === "FREE" ? "BASIC" : "PRO";

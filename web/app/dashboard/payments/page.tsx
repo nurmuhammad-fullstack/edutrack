@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTrainerId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -50,7 +51,12 @@ export default async function PaymentsPage({
   return (
     <div className="px-4 py-5 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-foreground">{t.paymentsTitle}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="font-semibold text-foreground">{t.paymentsTitle}</h1>
+          <Link href="/dashboard/reports" className="text-xs font-medium text-primary hover:underline">
+            {t.reportNav}
+          </Link>
+        </div>
         <MonthNav month={month} year={year} />
       </div>
 
