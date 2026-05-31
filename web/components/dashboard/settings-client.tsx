@@ -36,6 +36,18 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
   const [addingGroup, setAddingGroup] = useState(false);
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [attendanceOn, setAttendanceOn] = useState(trainer?.attendanceEnabled ?? true);
+
+  async function toggleAttendance() {
+    const next = !attendanceOn;
+    setAttendanceOn(next);
+    await fetch("/api/trainer/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ attendanceEnabled: next }),
+    });
+    router.refresh();
+  }
 
   const t = useT();
   const trainerInitials = initials(trainer?.name ?? trainer?.email ?? "T");
@@ -312,6 +324,30 @@ export function SettingsClient({ trainer, groups: initialGroups, inviteLink, inv
             <div className="font-semibold text-foreground text-sm">{t.proActive}</div>
             <div className="text-xs text-muted-foreground">{t.proActiveSub}</div>
           </div>
+        </div>
+      )}
+
+      {/* Attendance toggle (PRO only) */}
+      {trainer?.plan === "PRO" && (
+        <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between gap-3">
+          <div>
+            <div className="font-medium text-sm text-foreground">{t.attendanceToggle}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{t.attendanceToggleSub}</div>
+          </div>
+          <button
+            onClick={toggleAttendance}
+            role="switch"
+            aria-checked={attendanceOn}
+            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+              attendanceOn ? "bg-primary" : "bg-muted"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform ${
+                attendanceOn ? "translate-x-[22px]" : "translate-x-0.5"
+              }`}
+            />
+          </button>
         </div>
       )}
 

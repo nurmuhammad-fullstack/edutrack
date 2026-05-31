@@ -23,8 +23,14 @@ export default async function DashboardLayout({
 
   const [pendingCount, trainer] = await Promise.all([
     prisma.student.count({ where: { trainerId, status: "PENDING" } }),
-    prisma.trainer.findUnique({ where: { id: trainerId }, select: { name: true } }),
+    prisma.trainer.findUnique({
+      where: { id: trainerId },
+      select: { name: true, plan: true, attendanceEnabled: true },
+    }),
   ]);
+
+  // Hide the attendance tab only when a PRO trainer turned it off.
+  const showAttendance = !(trainer?.plan === "PRO" && trainer?.attendanceEnabled === false);
 
   const initials =
     trainer?.name
@@ -62,7 +68,7 @@ export default async function DashboardLayout({
 
       <main className="flex-1 pb-nav">{children}</main>
 
-      <BottomNav pendingCount={pendingCount} />
+      <BottomNav pendingCount={pendingCount} showAttendance={showAttendance} />
     </div>
     </I18nProvider>
   );

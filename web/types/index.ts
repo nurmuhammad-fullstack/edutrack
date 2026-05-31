@@ -9,6 +9,7 @@ export interface Trainer {
   telegramId: string | null;
   name: string | null;
   referral: string | null;
+  attendanceEnabled: boolean;
   plan: Plan;
   planExpiresAt: Date | null;
   createdAt: Date;

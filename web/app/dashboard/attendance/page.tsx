@@ -12,7 +12,7 @@ export default async function AttendancePage() {
 
   const trainer = await prisma.trainer.findUnique({
     where: { id: trainerId },
-    select: { plan: true },
+    select: { plan: true, attendanceEnabled: true },
   });
 
   const t = dashboard[await getLocale()];
@@ -34,6 +34,19 @@ export default async function AttendancePage() {
           >
             {t.upgradeToPro}
           </a>
+        </div>
+      </div>
+    );
+  }
+
+  // PRO trainer turned the section off.
+  if (!trainer?.attendanceEnabled) {
+    return (
+      <div className="px-4 py-5">
+        <h1 className="font-semibold text-foreground mb-4">{t.attendanceTitle}</h1>
+        <div className="flex flex-col items-center justify-center py-12 text-center gap-3 bg-card rounded-2xl border border-border px-6">
+          <span className="text-3xl">🙈</span>
+          <p className="text-muted-foreground text-sm max-w-[260px]">{t.attendanceOff}</p>
         </div>
       </div>
     );

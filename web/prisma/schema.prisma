@@ -37,6 +37,7 @@ model Trainer {
   telegramId    String?   @unique
   name          String?
   referral      String?   // promo code / ambassador who referred this trainer
+  attendanceEnabled Boolean @default(true) // PRO trainers can hide the attendance tab
   plan          Plan      @default(FREE)
   planExpiresAt DateTime?
   createdAt     DateTime  @default(now())

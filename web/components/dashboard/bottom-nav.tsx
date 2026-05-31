@@ -8,6 +8,7 @@ import { useT } from "@/components/i18n-provider";
 
 interface Props {
   pendingCount: number;
+  showAttendance?: boolean;
 }
 
 const navItems = [
@@ -51,14 +52,17 @@ const navItems = [
   },
 ];
 
-export function BottomNav({ pendingCount }: Props) {
+export function BottomNav({ pendingCount, showAttendance = true }: Props) {
   const pathname = usePathname();
   const t = useT();
+  const items = showAttendance
+    ? navItems
+    : navItems.filter((i) => i.href !== "/dashboard/attendance");
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-[72px] bg-card/80 backdrop-blur-xl border-t border-border z-50 flex items-center pb-[env(safe-area-inset-bottom,0px)]">
       <div className="flex w-full">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const isActive =
             item.href === "/dashboard"
               ? pathname === "/dashboard"
