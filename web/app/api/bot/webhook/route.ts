@@ -27,13 +27,20 @@ function langKeyboard() {
 function trainerKeyboard(lang: Locale) {
   const m = botMsg[lang];
   return {
-    keyboard: [[{ text: m.menuAdd }], [{ text: m.menuFeedback }, { text: m.menuLang }]],
+    keyboard: [
+      [{ text: m.menuCabinet }],
+      [{ text: m.menuAdd }],
+      [{ text: m.menuFeedback }, { text: m.menuLang }],
+    ],
     resize_keyboard: true,
   };
 }
 
 // Does this text match a menu button (in either language)?
-function isMenuButton(text: string, key: "menuAdd" | "menuFeedback" | "menuLang"): boolean {
+function isMenuButton(
+  text: string,
+  key: "menuAdd" | "menuCabinet" | "menuFeedback" | "menuLang"
+): boolean {
   return text === botMsg.uz[key] || text === botMsg.ru[key];
 }
 
@@ -227,6 +234,15 @@ export async function POST(req: Request) {
     const text: string = message.text ?? "";
 
     // ── Menu buttons (reply keyboard) ────────────────────────────────────────
+    // Reply-keyboard buttons can't carry URLs, so the cabinet button replies
+    // with an inline button that opens the dashboard login.
+    if (isMenuButton(text, "menuCabinet")) {
+      const lang = await getChatLang(chatId);
+      await bot.sendMessage(chatId, botMsg[lang].menuCabinetMsg, {
+        reply_markup: { inline_keyboard: [[{ text: botMsg[lang].btnCabinet, url: `${APP_URL}/login` }]] },
+      });
+      return NextResponse.json({ ok: true });
+    }
     if (isMenuButton(text, "menuLang")) {
       await bot.sendMessage(chatId, botMsg.uz.chooseLang, { reply_markup: langKeyboard() });
       return NextResponse.json({ ok: true });
