@@ -53,6 +53,9 @@ export default async function PaymentsPage({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-semibold text-foreground">{t.paymentsTitle}</h1>
+          <Link href="/dashboard/debts" className="text-xs font-medium text-red-600 hover:underline">
+            {t.debtNav}
+          </Link>
           <Link href="/dashboard/reports" className="text-xs font-medium text-primary hover:underline">
             {t.reportNav}
           </Link>
