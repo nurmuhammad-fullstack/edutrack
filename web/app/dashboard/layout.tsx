@@ -43,7 +43,10 @@ export default async function DashboardLayout({
   return (
     <I18nProvider locale={locale}>
     <div className="flex flex-col min-h-dvh">
-      <header className="sticky top-0 z-40 flex items-center justify-between px-4 h-14 bg-card/80 backdrop-blur-xl border-b border-border">
+      <header
+        style={{ viewTransitionName: "vt-header" }}
+        className="sticky top-0 z-40 flex items-center justify-between px-4 h-14 bg-card/80 backdrop-blur-xl border-b border-border"
+      >
         <span className="inline-flex items-center gap-1.5">
           <Logo className="size-6" />
           <span className="font-bold text-lg text-primary tracking-tight">EduTrack</span>

@@ -152,3 +152,48 @@
 .pb-nav {
   padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
+
+/* ── View transitions ──────────────────────────────────────────────────────
+   Route changes cross-fade the content area while the sticky header and the
+   bottom nav stay put (they carry their own stable view-transition-name, so
+   the browser leaves them untouched). Fast + subtle so it feels native. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: vt-fade-out 110ms ease both;
+  }
+  ::view-transition-new(root) {
+    animation: vt-fade-in 200ms ease both;
+  }
+  /* Keep the persistent chrome perfectly still during the transition. */
+  ::view-transition-group(vt-header),
+  ::view-transition-group(vt-nav),
+  ::view-transition-old(vt-header),
+  ::view-transition-new(vt-header),
+  ::view-transition-old(vt-nav),
+  ::view-transition-new(vt-nav) {
+    animation: none;
+  }
+}
+
+/* Respect reduced-motion: no view-transition animation at all. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { initials, avatarColor, fmtMoney } from "@/lib/utils";
 import { useT } from "@/components/i18n-provider";
@@ -16,36 +16,56 @@ interface Props {
 
 export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 }: Props) {
   const [paid, setPaid] = useState(initialPaid);
-  const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [paymentDay, setPaymentDay] = useState<number | null>(student.paymentDay);
   const [editingDay, setEditingDay] = useState(false);
   const [dayInput, setDayInput] = useState(student.paymentDay ? String(student.paymentDay) : "");
+  const busyRef = useRef(false);
+  const [, startTransition] = useTransition();
   const router = useRouter();
   const t = useT();
 
   async function toggle() {
-    setLoading(true);
-    const newStatus = paid ? "PENDING" : "PAID";
-    await fetch("/api/payments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        studentId: student.id,
-        month,
-        year,
-        amount: student.group?.monthlyFee ?? 0,
-        status: newStatus,
-      }),
-    });
-    // First-ever payment auto-anchors the payment day on the server; mirror it.
-    if (!paid && paymentDay == null) {
+    if (busyRef.current) return;
+    busyRef.current = true;
+
+    const prevPaid = paid;
+    const prevDay = paymentDay;
+    const next = !paid;
+
+    // Optimistic: flip the UI instantly, sync in the background.
+    setPaid(next);
+    if (next && paymentDay == null) {
+      // First-ever payment auto-anchors the payment day on the server; mirror it.
       const today = new Date(Date.now() + 5 * 3600 * 1000).getUTCDate();
       setPaymentDay(today);
       setDayInput(String(today));
     }
-    setPaid(!paid);
-    setLoading(false);
-    router.refresh();
+    setSyncing(true);
+
+    try {
+      const res = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: student.id,
+          month,
+          year,
+          amount: student.group?.monthlyFee ?? 0,
+          status: next ? "PAID" : "PENDING",
+        }),
+      });
+      if (!res.ok) throw new Error("payment sync failed");
+      startTransition(() => router.refresh());
+    } catch {
+      // Revert the optimistic change if the server rejected it.
+      setPaid(prevPaid);
+      setPaymentDay(prevDay);
+      setDayInput(prevDay ? String(prevDay) : "");
+    } finally {
+      setSyncing(false);
+      busyRef.current = false;
+    }
   }
 
   async function saveDay() {
@@ -144,17 +164,12 @@ export function PaymentRow({ student, paid: initialPaid, month, year, index = 0 
       </div>
       <button
         onClick={toggle}
-        disabled={loading}
-        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full shrink-0 transition-all active:scale-95 ${btnClass} ${
-          loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        aria-busy={syncing}
+        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full shrink-0 transition-all active:scale-95 cursor-pointer ${btnClass} ${
+          syncing ? "opacity-80" : ""
         }`}
       >
-        {loading ? (
-          <svg className="size-3 animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        ) : state === "due" ? (
+        {state === "due" ? (
           <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 6 9 17l-5-5" />
           </svg>

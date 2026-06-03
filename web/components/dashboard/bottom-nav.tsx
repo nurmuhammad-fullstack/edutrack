@@ -60,7 +60,10 @@ export function BottomNav({ pendingCount, showAttendance = true }: Props) {
     : navItems.filter((i) => i.href !== "/dashboard/attendance");
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-[72px] bg-card/80 backdrop-blur-xl border-t border-border z-50 flex items-center pb-[env(safe-area-inset-bottom,0px)]">
+    <nav
+      style={{ viewTransitionName: "vt-nav" }}
+      className="fixed bottom-0 left-0 right-0 h-[72px] bg-card/80 backdrop-blur-xl border-t border-border z-50 flex items-center pb-[env(safe-area-inset-bottom,0px)]"
+    >
       <div className="flex w-full">
         {items.map((item) => {
           const isActive =
