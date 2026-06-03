@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/components/i18n-provider";
 
@@ -59,17 +58,34 @@ export function BottomNav({ pendingCount, showAttendance = true }: Props) {
     ? navItems
     : navItems.filter((i) => i.href !== "/dashboard/attendance");
 
+  const activeIndex = items.findIndex((item) =>
+    item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)
+  );
+
   return (
     <nav
       style={{ viewTransitionName: "vt-nav" }}
       className="fixed bottom-0 left-0 right-0 h-[72px] bg-card/80 backdrop-blur-xl border-t border-border z-50 flex items-center pb-[env(safe-area-inset-bottom,0px)]"
     >
-      <div className="flex w-full">
+      <div className="relative flex w-full">
+        {/* Sliding active pill — one cell-wide track translated to the active
+            cell; the centered pill mirrors the old motion layout animation,
+            now pure CSS (no JS animation library). */}
+        {activeIndex >= 0 && (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute top-2 left-0 flex justify-center transition-transform duration-300 ease-out"
+            style={{
+              width: `${100 / items.length}%`,
+              transform: `translateX(${activeIndex * 100}%)`,
+            }}
+          >
+            <span className="h-9 w-12 rounded-2xl bg-primary/10" />
+          </span>
+        )}
+
         {items.map((item) => {
-          const isActive =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(item.href);
+          const isActive = activeIndex === items.indexOf(item);
 
           return (
             <Link
@@ -81,26 +97,14 @@ export function BottomNav({ pendingCount, showAttendance = true }: Props) {
               )}
             >
               <div className="relative flex items-center justify-center">
-                {/* Sliding active indicator (shared layout animation) */}
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-pill"
-                    className="absolute -inset-x-3 -inset-y-1.5 bg-primary/10 rounded-2xl"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                  />
-                )}
-                <motion.div
-                  className="relative"
-                  animate={{ scale: isActive ? 1.08 : 1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
+                <div className={cn("relative transition-transform duration-200 ease-out", isActive && "scale-110")}>
                   {item.icon}
                   {item.href === "/dashboard" && pendingCount > 0 && (
                     <span className="absolute -top-1.5 -right-2 size-4 bg-destructive text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                       {pendingCount > 9 ? "9+" : pendingCount}
                     </span>
                   )}
-                </motion.div>
+                </div>
               </div>
               <span className="relative">{t[item.labelKey]}</span>
             </Link>
