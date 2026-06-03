@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PRO
+}
+
+enum StudentStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum LeadSource {
+  WEB
+  BOT
+  INSTAGRAM
+  TELEGRAM
+  REFERRAL
+  MANUAL
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  VERIFIED
+  CONVERTED
+  REJECTED
+}
+
+model Trainer {
+  id            String    @id
+  email         String    @unique
+  phone         String?   @unique
+  telegramId    String?   @unique
+  name          String?
+  referral      String?   // promo code / ambassador who referred this trainer
+  attendanceEnabled Boolean @default(true) // PRO trainers can hide the attendance tab
+  plan          Plan      @default(FREE)
+  planExpiresAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  students Student[]
+  groups   Group[]
+}
+
+model Group {
+  id         Int      @id @default(autoincrement())
+  trainerId  String
+  name       String
+  monthlyFee Int
+  lessonDays Int[]    @default([]) // weekdays (0=Sun..6=Sat) the group meets; [] = any day
+  createdAt  DateTime @default(now())
+
+  trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@index([trainerId])
+}
+
+model Student {
+  id         Int           @id @default(autoincrement())
+  trainerId  String
+  groupId    Int?
+  telegramId String?
+  fullName   String
+  phone      String
+  status     StudentStatus @default(PENDING)
+  paymentDay Int?          // day of month (1-31) the student pays; auto-set on first payment
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  trainer    Trainer      @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  group      Group?       @relation(fields: [groupId], references: [id])
+  payments   Payment[]
+  attendance Attendance[]
+
+  @@index([trainerId, status])
+  @@index([groupId])
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  studentId Int
+  month     Int
+  year      Int
+  amount    Int
+  status    PaymentStatus @default(PENDING)
+  paidAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, month, year])
+}
+
+model Attendance {
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  date      DateTime         @db.Date
+  status    AttendanceStatus
+  createdAt DateTime         @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+}
+
+model BotUser {
+  chatId    String   @id
+  lang      String   @default("uz")
+  createdAt DateTime @default(now())
+}
+
+model Feedback {
+  id         Int      @id @default(autoincrement())
+  telegramId String?
+  name       String?
+  username   String?
+  message    String
+  createdAt  DateTime @default(now())
+}
+
+// Trainer applications / leads from every acquisition channel. Applying never
+// creates an account — the admin verifies each lead and converts it manually.
+model Lead {
+  id        Int        @id @default(autoincrement())
+  name      String
+  phone     String
+  sport     String?
+  message   String?
+  source    LeadSource @default(WEB)
+  status    LeadStatus @default(NEW)
+  referral  String?    // promo code / ambassador, e.g. an Instagram campaign tag
+  note      String?    // admin's internal note
+  trainerId String?    // set once converted into a Trainer account
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status, createdAt])
+  @@index([source])
+}
