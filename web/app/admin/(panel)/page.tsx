@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { fmtMoney } from "@/lib/utils";
 import { TrainersPanel, type TrainerRow } from "@/components/admin/trainers-panel";
+import { LeadsPanel } from "@/components/admin/leads-panel";
 import { Donut, Sparkline, BarChart, type DonutSegment } from "@/components/admin/charts";
 
 const MONTH_SHORT = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"];
@@ -49,6 +50,7 @@ export default async function AdminDashboardPage() {
     feedbackCount,
     recentFeedback,
     recentStudents,
+    leads,
   ] = await Promise.all([
     prisma.trainer.count(),
     prisma.trainer.groupBy({ by: ["plan"], _count: { _all: true } }),
@@ -73,7 +75,22 @@ export default async function AdminDashboardPage() {
       take: 7,
       include: { group: { select: { name: true } }, trainer: { select: { name: true, email: true } } },
     }),
+    prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
   ]);
+
+  const leadRows = leads.map((l) => ({
+    id: l.id,
+    name: l.name,
+    phone: l.phone,
+    sport: l.sport,
+    message: l.message,
+    source: l.source,
+    status: l.status,
+    referral: l.referral,
+    note: l.note,
+    trainerId: l.trainerId,
+    createdAt: l.createdAt.toISOString(),
+  }));
 
   // ── Aggregates ────────────────────────────────────────────────────────────
   const totalStudents = studentDates.length;
@@ -223,6 +240,11 @@ export default async function AdminDashboardPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── Leads / applications inbox ── */}
+      <section id="leads" className="scroll-mt-24">
+        <LeadsPanel leads={leadRows} />
       </section>
 
       {/* ── Activity + collection ── */}

@@ -30,6 +30,23 @@ enum AttendanceStatus {
   LATE
 }
 
+enum LeadSource {
+  WEB
+  BOT
+  INSTAGRAM
+  TELEGRAM
+  REFERRAL
+  MANUAL
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  VERIFIED
+  CONVERTED
+  REJECTED
+}
+
 model Trainer {
   id            String    @id
   email         String    @unique
@@ -121,4 +138,24 @@ model Feedback {
   username   String?
   message    String
   createdAt  DateTime @default(now())
+}
+
+// Trainer applications / leads from every acquisition channel. Applying never
+// creates an account — the admin verifies each lead and converts it manually.
+model Lead {
+  id        Int        @id @default(autoincrement())
+  name      String
+  phone     String
+  sport     String?
+  message   String?
+  source    LeadSource @default(WEB)
+  status    LeadStatus @default(NEW)
+  referral  String?    // promo code / ambassador, e.g. an Instagram campaign tag
+  note      String?    // admin's internal note
+  trainerId String?    // set once converted into a Trainer account
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status, createdAt])
+  @@index([source])
 }

@@ -27,6 +27,7 @@ export async function POST(req: Request) {
   const plan: Plan = PLANS.includes(body.plan) ? body.plan : "FREE";
   const normalized = normalizePhone(typeof body.phone === "string" ? body.phone : "");
   const referral = typeof body.referral === "string" && body.referral.trim() ? body.referral.trim().slice(0, 60) : null;
+  const leadId = Number.isInteger(Number(body.leadId)) ? Number(body.leadId) : null;
   // Free promo months: paid plan for N months, then auto-downgrade to FREE.
   const trialMonths = Number(body.trialMonths);
   let planExpiresAt: Date | null = null;
@@ -83,6 +84,12 @@ export async function POST(req: Request) {
         groups: { create: DEFAULT_GROUPS },
       },
     });
+    // If this account was opened from a lead, mark that lead converted.
+    if (leadId) {
+      await prisma.lead
+        .update({ where: { id: leadId }, data: { status: "CONVERTED", trainerId: trainer.id } })
+        .catch(() => {});
+    }
     return NextResponse.json(trainer, { status: 201 });
   } catch (e) {
     // Roll back the auth user if the DB row failed, so phone isn't half-registered.

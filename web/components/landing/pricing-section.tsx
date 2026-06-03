@@ -148,8 +148,6 @@ export function PricingSection({
 
                 <a
                   href={applyHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={`mt-auto h-10 rounded-xl font-medium text-sm flex items-center justify-center transition-colors ${
                     plan.primary
                       ? "bg-primary text-primary-foreground hover:opacity-90"

@@ -3,12 +3,11 @@ import { Logo } from "@/components/logo";
 import { PhoneMockup } from "@/components/landing/phone-mockup";
 import { LangSwitcher } from "@/components/lang-switcher";
 import { PLAN_PRICE, PLAN_PRICE_YEARLY } from "@/lib/plan";
-import { applyLink } from "@/lib/apply";
 import { landing } from "@/lib/i18n";
 import { getLocale } from "@/lib/get-locale";
 import { PricingSection } from "@/components/landing/pricing-section";
 
-const apply = applyLink();
+const apply = "/apply";
 
 const FEAT_KEYS = ["payment", "invite", "manual", "bot", "reminder", "attendance", "reports"] as const;
 
@@ -53,8 +52,6 @@ export default async function LandingPage() {
           </Link>
           <a
             href={apply}
-            target="_blank"
-            rel="noopener noreferrer"
             className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:opacity-90 transition-opacity"
           >
             {t.navApply}
@@ -82,8 +79,6 @@ export default async function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
               <a
                 href={apply}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground font-medium flex items-center justify-center hover:opacity-90 transition-opacity shadow-lg shadow-primary/20"
               >
                 {t.ctaFree}
@@ -165,8 +160,6 @@ export default async function LandingPage() {
           <p className="text-muted-foreground">{t.finalSub}</p>
           <a
             href={apply}
-            target="_blank"
-            rel="noopener noreferrer"
             className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20"
           >
             <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
